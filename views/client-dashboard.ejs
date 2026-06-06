@@ -1,0 +1,400 @@
+<%- include('partials/header') %>
+<% const safeRequestSuccess = typeof requestSuccess !== 'undefined' ? requestSuccess : false; %>
+
+<div class="dashclient-container">
+  <!-- Section Bienvenue -->
+  <% if (safeRequestSuccess) { %>
+    <div class="dashclient-success-banner">
+      Votre demande a bien ete envoyee. L'admin la recevra dans l'espace demandes.
+    </div>
+  <% } %>
+
+  <div class="dashclient-hero">
+    <div class="dashclient-hero-content">
+      <h1>Bienvenue, <%= user.name %></h1>
+      <p>Envoyez une demande puis suivez votre colis grâce au code reçu sur WhatsApp.</p>
+    </div>
+  </div>
+
+  <!-- Statistiques rapides -->
+  <div class="dashclient-stats-compact">
+    <div class="dashclient-stat-item">
+      <span class="dashclient-stat-val"><%= (demandStats && typeof demandStats.total !== 'undefined') ? demandStats.total : (demands ? demands.length : 0) %></span>
+      <span class="dashclient-stat-lab">Total demandes</span>
+    </div>
+    <div class="dashclient-stat-item">
+      <span class="dashclient-stat-val"><%= (demandStats && typeof demandStats.notContacted !== 'undefined') ? demandStats.notContacted : 0 %></span>
+      <span class="dashclient-stat-lab">En attente de contact</span>
+    </div>
+    <div class="dashclient-stat-item">
+      <span class="dashclient-stat-val"><%= (demandStats && typeof demandStats.contacted !== 'undefined') ? demandStats.contacted : 0 %></span>
+      <span class="dashclient-stat-lab">Contactées</span>
+    </div>
+    <div class="dashclient-stat-item">
+      <span class="dashclient-stat-val"><%= (demands && demands.length) ? new Date(demands[0].createdAt).toLocaleDateString('fr-FR') : '-' %></span>
+      <span class="dashclient-stat-lab">Dernière demande</span>
+    </div>
+  </div>
+
+  <!-- Boutons d'action rapides -->
+  <div class="dashclient-actions-grid">
+    <button class="dashclient-action-btn" onclick="scrollToTracking()">
+      <div class="dashclient-action-icon blue">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 11l3 3L22 4"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+      </div>
+      <div class="dashclient-action-text">
+        <h3>Suivre mon colis</h3>
+        <p>Utiliser le code reçu sur WhatsApp</p>
+      </div>
+    </button>
+
+    <a href="/client-dashboard/choose-direction" class="dashclient-action-btn">
+      <div class="dashclient-action-icon green">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="16"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>
+      </div>
+      <div class="dashclient-action-text">
+        <h3>Envoyer une demande</h3>
+        <p>Soumettre un besoin a traiter par l'admin</p>
+      </div>
+    </a>
+  </div>
+
+  <!-- Suivi -->
+  <div class="dashclient-search-panel" id="tracking-panel">
+    <form action="/client-dashboard" method="GET" class="dashclient-search-form">
+      <label for="code">Suivre mon colis</label>
+      <div class="dashclient-search-group">
+        <input id="code" name="code" type="text" placeholder="Code reçu sur WhatsApp" value="<%= typeof checkCodeValue !== 'undefined' ? checkCodeValue : '' %>" />
+        <button type="submit" class="dashclient-btn-primary">Consulter</button>
+      </div>
+    </form>
+    <% if (typeof orderLocation !== 'undefined' && (typeof checkCodeValue !== 'undefined' && checkCodeValue)) { %>
+      <div class="dashclient-search-result">
+        <% if (orderLocation) { %>
+          <p>Votre colis est actuellement à <strong><%= orderLocation %></strong>.</p>
+        <% } else { %>
+          <p>Aucun colis trouvé pour ce code.</p>
+        <% } %>
+      </div>
+    <% } %>
+  </div>
+
+  <!-- Liste des demandes -->
+  <div id="demands-list" class="dashclient-section">
+    <div class="dashclient-section-header">
+      <h2>📋 Liste des demandes</h2>
+    </div>
+    
+    <% if (!demands || demands.length === 0) { %>
+      <div class="dashclient-empty">
+        <p>Vous n'avez pas encore envoyé de demande.</p>
+        <a href="/client-dashboard/choose-direction" class="dashclient-btn-primary">Envoyer ma première demande</a>
+      </div>
+    <% } else { %>
+      <div class="dashclient-table-wrapper">
+        <table class="dashclient-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Destination</th>
+              <th>Statut</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% demands.forEach(demand => { %>
+              <tr>
+                <td>
+                  <span class="dashclient-order-ref"><%= new Date(demand.createdAt).toLocaleDateString('fr-FR') %></span>
+                </td>
+                <td><%= demand.destination || '-' %></td>
+                <td>
+                  <span class="dashclient-badge <%= demand.status %>">
+                    <%= demand.status === 'contacted' ? 'Contactée' : 'En attente' %>
+                  </span>
+                </td>
+                <td><%= demand.parcelDescription || '-' %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+          <!-- Pagination client 5/page -->
+      <% if (pagination && pagination.totalPages > 1) { %>
+        <div class="dashclient-pagination-container">
+          <div class="dashclient-pagination-info">
+            Affichage <%= (pagination.page - 1) * pagination.limit + 1 %> - 
+            <%= Math.min(pagination.page * pagination.limit, pagination.totalItems) %> 
+            sur <%= pagination.totalItems %> demande(s)
+          </div>
+          <div class="dashclient-pagination-links">
+            <% if (pagination.prevPage) { %>
+              <a href="?page=<%= pagination.prevPage %><%= (typeof checkCodeValue !== 'undefined' && checkCodeValue) ? '&code=' + encodeURIComponent(checkCodeValue) : '' %>" class="dashclient-page-link">← Précédent</a>
+            <% } else { %>
+              <span class="dashclient-page-link disabled">← Précédent</span>
+            <% } %>
+
+            <% for (let i = 1; i <= pagination.totalPages; i++) { %>
+              <% if (i === pagination.page) { %>
+                <span class="dashclient-page-link active"><%= i %></span>
+              <% } else { %>
+                <a href="?page=<%= i %><%= (typeof checkCodeValue !== 'undefined' && checkCodeValue) ? '&code=' + encodeURIComponent(checkCodeValue) : '' %>" class="dashclient-page-link"><%= i %></a>
+              <% } %>
+            <% } %>
+
+            <% if (pagination.nextPage) { %>
+              <a href="?page=<%= pagination.nextPage %><%= (typeof checkCodeValue !== 'undefined' && checkCodeValue) ? '&code=' + encodeURIComponent(checkCodeValue) : '' %>" class="dashclient-page-link">Suivant →</a>
+            <% } else { %>
+              <span class="dashclient-page-link disabled">Suivant →</span>
+            <% } %>
+          </div>
+        </div>
+      <% } %>
+  </div>
+</div>
+
+<style>
+/* ========== TOUTES LES CLASSES PRÉFIXÉES dashclient- ========== */
+.dashclient-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  background: #f8fafc;
+}
+.dashclient-hero {
+  margin-bottom: 20px;
+  margin-top: -40px;
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  padding: 40px;
+  border-radius: 24px;
+  color: white;
+}
+.dashclient-success-banner {
+  margin-bottom: 18px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+  font-weight: 700;
+}
+.dashclient-hero h1 {
+  font-size: 32px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+.dashclient-stats-compact {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.dashclient-stat-item {
+  background: white;
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+}
+.dashclient-stat-val {
+  font-size: 24px;
+  font-weight: 800;
+  display: block;
+  color: #0b2f62;
+}
+.dashclient-stat-lab {
+  font-size: 12px;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.dashclient-actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+.dashclient-action-btn {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 30px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: left;
+  width: 100%;
+  text-decoration: none;
+}
+.dashclient-action-btn:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  border-color: #2563eb;
+}
+.dashclient-action-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dashclient-action-icon.blue { background: rgba(37, 99, 235, 0.1); color: #2563eb; }
+.dashclient-action-icon.green { background: rgba(16, 115, 129, 0.1); color: #10b981; }
+.dashclient-action-text h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #0b2f62;
+}
+.dashclient-action-text p {
+  color: #64748b;
+  font-size: 14px;
+}
+.dashclient-search-panel {
+  margin-bottom: 32px;
+  padding: 24px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+}
+.dashclient-search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.dashclient-search-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.dashclient-search-group input {
+  flex: 1;
+  padding: 14px 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  font-size: 16px;
+}
+.dashclient-btn-primary {
+  background: #0b2f62;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 40px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.dashclient-btn-primary:hover { background: #1e4a76; }
+.dashclient-search-result {
+  margin-top: 12px;
+  font-size: 16px;
+}
+.dashclient-section {
+  background: white;
+  border-radius: 24px;
+  padding: 32px;
+  border: 1px solid #e2e8f0;
+}
+.dashclient-section-header h2 {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 24px;
+}
+.dashclient-table-wrapper { overflow-x: auto; }
+.dashclient-table { width: 100%; border-collapse: collapse; }
+.dashclient-table th {
+  text-align: left;
+  padding: 16px;
+  border-bottom: 2px solid #f1f5f9;
+  color: #6a7688;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+.dashclient-table td {
+  padding: 16px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 16px;
+  color: #343e4c;
+}
+.dashclient-order-ref {
+  font-weight: 700;
+  color: #2563eb;
+}
+.dashclient-badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  display: inline-block;
+}
+.dashclient-badge.not_contacted { background: #fef3c7; color: #92400e; }
+.dashclient-badge.contacted { background: #d1fae5; color: #065f46; }
+.dashclient-empty { text-align: center; padding: 40px; color: #64748b; }
+
+@media (max-width: 768px) {
+  .dashclient-actions-grid { grid-template-columns: 1fr; }
+  .dashclient-stats-compact { grid-template-columns: 1fr 1fr; }
+}
+/* ===== PAGINATION CLIENT ===== */
+.dashclient-pagination-container {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.dashclient-pagination-info {
+  font-size: 13px;
+  color: #64748b;
+}
+.dashclient-pagination-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.dashclient-page-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #334155;
+  text-decoration: none;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s;
+}
+.dashclient-page-link:hover {
+  background: #e2e8f0;
+}
+.dashclient-page-link.active {
+  background: #0b2f62;
+  color: white;
+  border-color: #0b2f62;
+}
+.dashclient-page-link.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+</style>
+
+<script>
+  
+function scrollToTracking() {
+  document.getElementById('tracking-panel')?.scrollIntoView({ behavior: 'smooth' });
+}
+</script>

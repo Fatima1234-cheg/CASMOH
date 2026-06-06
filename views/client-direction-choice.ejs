@@ -1,0 +1,214 @@
+<%- include('partials/header') %>
+<% const activeDirection = (typeof currentDirection !== 'undefined' && currentDirection) ? currentDirection : ''; %>
+
+<div class="client-dashboard-container">
+  <div class="page-header-actions">
+    <a href="/client-dashboard" class="btn-return">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+    </a>
+    <h1>Choisir la direction</h1>
+  </div>
+
+  <div class="direction-choice-grid">
+    <a href="/client-dashboard/new-demand?direction=MA-FR" class="choice-card <%= activeDirection === 'MA-FR' ? 'active active-ma-fr' : '' %>" data-direction-choice="MA-FR">
+      <div class="choice-icon-box blue">
+        <span class="flag-emoji">🇲🇦</span>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+        <span class="flag-emoji">🇫🇷</span>
+      </div>
+      <div class="choice-content">
+        <h3>Maroc → France</h3>
+        <p>Envoyer une demande pour un envoi du Maroc vers la France</p>
+      </div>
+    </a>
+
+    <a href="/client-dashboard/new-demand?direction=FR-MA" class="choice-card <%= activeDirection === 'FR-MA' ? 'active active-fr-ma' : '' %>" data-direction-choice="FR-MA">
+      <div class="choice-icon-box green">
+        <span class="flag-emoji">🇫🇷</span>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+        <span class="flag-emoji">🇲🇦</span>
+      </div>
+      <div class="choice-content">
+        <h3>France → Maroc</h3>
+        <p>Envoyer une demande pour un envoi de la France vers le Maroc</p>
+      </div>
+    </a>
+  </div>
+</div>
+
+<style>
+.client-dashboard-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.page-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 30px;
+  padding-left: 5px;
+ 
+}
+
+.page-header-actions h1 {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.btn-return {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  text-decoration: none;
+
+    color: #1e293b;
+  font-size: 20px;
+    font-weight: bolder;
+  padding: 8px 3px;
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+.btn-return:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+  border-color: #cbd5e1;
+}
+
+.direction-choice-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.choice-card {
+  background: white;
+  border-radius: 20px;
+  padding: 32px;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.choice-card:hover {
+  transform: translateY(-5px);
+  border-color: #3b82f6;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.choice-card.active {
+  transform: translateY(-5px);
+  border-width: 2px;
+  animation: heartbeat 1.1s ease-in-out infinite;
+}
+
+.choice-card.active-ma-fr {
+  border-color: #2563eb;
+  box-shadow: 0 20px 30px -12px rgba(37, 99, 235, 0.35);
+}
+
+.choice-card.active-fr-ma {
+  border-color: #059669;
+  box-shadow: 0 20px 30px -12px rgba(5, 150, 105, 0.35);
+}
+
+.choice-card.active-ma-fr .choice-icon-box {
+  background: #dbeafe;
+}
+
+.choice-card.active-fr-ma .choice-icon-box {
+  background: #dcfce7;
+}
+
+.choice-card.is-clicked {
+  animation: heartbeat 0.7s ease-in-out 2;
+}
+
+.choice-icon-box {
+  width: 100%;
+  height: 120px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 24px;
+  font-size: 40px;
+}
+
+.choice-icon-box.blue { background: #eff6ff; color: #3b82f6; }
+.choice-icon-box.green { background: #f0fdf4; color: #22c55e; }
+
+.flag-emoji { filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
+
+.choice-content h3 {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 8px;
+  color: #1e293b;
+}
+
+.choice-content p {
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+@keyframes heartbeat {
+  0% { transform: translateY(-5px) scale(1); }
+  14% { transform: translateY(-5px) scale(1.06); }
+  28% { transform: translateY(-5px) scale(1); }
+  42% { transform: translateY(-5px) scale(1.08); }
+  70% { transform: translateY(-5px) scale(1); }
+  100% { transform: translateY(-5px) scale(1); }
+}
+
+@media (max-width: 640px) {
+  .direction-choice-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const cards = document.querySelectorAll('[data-direction-choice]');
+  const savedDirection = localStorage.getItem('clientDirectionChoice');
+
+  cards.forEach((card) => {
+    const direction = card.getAttribute('data-direction-choice');
+    if (!document.querySelector('.choice-card.active') && savedDirection === direction) {
+      card.classList.add('active', direction === 'MA-FR' ? 'active-ma-fr' : 'active-fr-ma');
+    }
+
+    card.addEventListener('click', function (event) {
+      event.preventDefault();
+      localStorage.setItem('clientDirectionChoice', direction);
+      cards.forEach((item) => {
+        item.classList.remove('active', 'active-ma-fr', 'active-fr-ma', 'is-clicked');
+      });
+      card.classList.add('active', 'is-clicked', direction === 'MA-FR' ? 'active-ma-fr' : 'active-fr-ma');
+      window.setTimeout(() => {
+        window.location.href = card.href;
+      }, 380);
+    });
+  });
+});
+</script>
+
+<%- include('partials/footer') %>

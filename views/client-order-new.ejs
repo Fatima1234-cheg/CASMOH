@@ -1,0 +1,245 @@
+<%- include('partials/header') %>
+<% const directionLabel = currentDirection === 'FR-MA' ? 'France -> Maroc' : 'Maroc -> France'; %>
+<% const formData = typeof requestData !== 'undefined' && requestData ? requestData : {}; %>
+<% const formErrors = Array.isArray(errors) ? errors : []; %>
+
+<div class="client-request-page">
+  <div class="request-header">
+    <a href="/client-dashboard" class="request-back">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Retour
+    </a>
+    <h1>Nouvelle demande</h1>
+  </div>
+
+  <div class="request-banner <%= currentDirection === 'FR-MA' ? 'fr-ma' : 'ma-fr' %>">
+    <span>Direction sélectionnée</span>
+    <strong><%= directionLabel %></strong>
+  </div>
+
+  <div class="request-card">
+    <div class="request-card-head">
+      <h2>Envoyer une demande</h2>
+      <p>L’équipe admin vous recontacte après réception de votre demande.</p>
+    </div>
+
+    <% if (formErrors.length > 0) { %>
+      <div class="request-errors">
+        <% formErrors.forEach(error => { %>
+          <div><%= error.msg %></div>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <form method="POST" action="/client-dashboard/new-demand" class="request-form">
+      <input type="hidden" name="direction" value="<%= currentDirection %>">
+
+      <div class="request-grid">
+        <div class="request-field">
+          <label for="firstName">Prénom</label>
+          <input id="firstName" name="firstName" type="text" value="<%= formData.firstName || '' %>" required>
+        </div>
+
+        <div class="request-field">
+          <label for="lastName">Nom</label>
+          <input id="lastName" name="lastName" type="text" value="<%= formData.lastName || '' %>" required>
+        </div>
+
+        <div class="request-field request-full">
+          <label for="phone">Numéro</label>
+          <input id="phone" name="phone" type="tel" value="<%= formData.phone || '' %>" placeholder="+212..." required>
+        </div>
+
+        <div class="request-field request-full">
+          <label for="parcelDescription">Description du coli</label>
+          <textarea id="parcelDescription" name="parcelDescription" rows="4" placeholder="Ex: vêtements, chaussures, documents..." required><%= formData.parcelDescription || '' %></textarea>
+        </div>
+
+        <div class="request-field request-full">
+          <label for="destination">Destination</label>
+          <input id="destination" name="destination" type="text" value="<%= formData.destination || '' %>" placeholder="Ville de destination" required>
+        </div>
+      </div>
+
+      <button type="submit" class="request-submit">Envoyer la demande</button>
+    </form>
+  </div>
+</div>
+
+<style>
+.client-request-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 36px 20px 56px;
+}
+
+.request-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.request-header h1 {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 800;
+  color: #0b2f62;
+}
+
+.request-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #0b2f62;
+  text-decoration: none;
+  font-weight: 700;
+  padding: 10px 14px;
+  border-radius: 999px;
+}
+
+.request-back:hover {
+  background: #eef4ff;
+}
+
+.request-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  border-radius: 22px;
+  padding: 18px 22px;
+  color: #fff;
+  margin-bottom: 22px;
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.14);
+}
+
+.request-banner.ma-fr {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+.request-banner.fr-ma {
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+.request-banner span {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  opacity: 0.9;
+  font-weight: 700;
+}
+
+.request-banner strong {
+  font-size: 24px;
+}
+
+.request-card {
+  background: #fff;
+  border-radius: 28px;
+  padding: 30px;
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
+}
+
+.request-card-head h2 {
+  margin: 0 0 8px;
+  color: #0f172a;
+}
+
+.request-card-head p {
+  margin: 0 0 22px;
+  color: #64748b;
+}
+
+.request-errors {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.request-form {
+  display: grid;
+  gap: 22px;
+}
+
+.request-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.request-field {
+  display: grid;
+  gap: 8px;
+}
+
+.request-full {
+  grid-column: 1 / -1;
+}
+
+.request-field label {
+  font-weight: 700;
+  color: #334155;
+}
+
+.request-field input,
+.request-field textarea {
+  width: 100%;
+  border: 1.5px solid #dbe3ee;
+  border-radius: 16px;
+  padding: 14px 16px;
+  font-size: 15px;
+  background: #fff;
+}
+
+.request-field input:focus,
+.request-field textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.request-submit {
+  border: none;
+  border-radius: 999px;
+  padding: 15px 24px;
+  background: linear-gradient(135deg, #0b2f62, #1e4a76);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.request-submit:hover {
+  filter: brightness(1.05);
+}
+
+@media (max-width: 640px) {
+  .request-header {
+    flex-wrap: wrap;
+  }
+
+  .request-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .request-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .request-card {
+    padding: 22px;
+  }
+}
+</style>
+
+<%- include('partials/footer') %>
