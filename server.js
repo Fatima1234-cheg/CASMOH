@@ -28,6 +28,10 @@ dotenv.config();
 
 const app = express(); // <-- Déclaration de app AVANT de l'utiliser
 
+// Trust the first proxy hop (Railway, Render, etc.) so that express-rate-limit
+// and other middleware can read the real client IP from X-Forwarded-For.
+app.set('trust proxy', 1);
+
 // ===== CORS CONFIGURATION =====
 const isProduction = process.env.NODE_ENV === 'production';
 const localOriginPattern = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/i;
@@ -38,6 +42,8 @@ const envAllowedOrigins = (process.env.CORS_ORIGINS || '')
 const allowedOrigins = new Set([
   ...(process.env.BASE_URL ? [process.env.BASE_URL] : []),
   ...envAllowedOrigins,
+  // Always allow the production Railway domain (safe to have even in dev)
+  'https://casmoh-production.up.railway.app',
 ]);
 
 const corsOptions = {
@@ -193,8 +199,8 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
+      secure: isProduction,  // Use secure cookies in production (HTTPS)
+      sameSite: isProduction ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     },
     store: MongoStore.create({
