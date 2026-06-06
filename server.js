@@ -152,7 +152,17 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 // Parsers
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(methodOverride('_method'));
+app.use(methodOverride((req, res) => {
+  if (req.body && typeof req.body === 'object' && '_method' in req.body) {
+    const method = req.body._method;
+    delete req.body._method;
+    return method;
+  }
+  if (req.query && typeof req.query === 'object' && req.query._method) {
+    return req.query._method;
+  }
+  return undefined;
+}));
 
 // Security & performance - MODIFIÉ POUR LE DÉVELOPPEMENT
 if (process.env.NODE_ENV === 'production') {

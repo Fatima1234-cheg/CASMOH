@@ -111,7 +111,12 @@ exports.create = async (req, res, next) => {
 exports.remove = async (req, res, next) => {
   try {
     await City.findByIdAndDelete(req.params.id);
-    res.redirect('/cities');
+    const isAjax = req.headers['x-requested-with'] === 'XMLHttpRequest' ||
+                   (req.headers.accept && req.headers.accept.includes('application/json'));
+    if (isAjax) {
+      return res.json({ success: true });
+    }
+    return res.redirect('/cities');
   } catch (err) {
     next(err);
   }
