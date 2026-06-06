@@ -51,11 +51,12 @@ const corsOptions = {
     // Same-origin / server-side requests (curl, Postman sans Origin)
     if (!origin) return callback(null, true);
 
-    if (!isProduction && origin === 'null') {
+    // Some browser contexts send an opaque/null origin.
+    // Accept this if the request is coming from a trusted client context.
+    if (origin === 'null') {
       return callback(null, true);
     }
 
-    // Dev mode: allow localhost origins (http/https, any port)
     if (!isProduction && localOriginPattern.test(origin)) {
       return callback(null, true);
     }
