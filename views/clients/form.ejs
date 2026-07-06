@@ -1,0 +1,305 @@
+
+
+<style>
+
+  .clients-page-form {
+    background-color: #f8fbff;
+    padding: 60px 20px;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  .form-container {
+    width: 100%;
+    max-width: 550px;
+  }
+  .clients-section.clients-add {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 32px 40px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    border-left: 6px solid #ef4444; 
+  }
+  .form-header h2 { margin: 0 0 8px 0; font-size: 24px; color: #0f172a; }
+  .form-header p { margin: 0 0 28px 0; color: #64748b; font-size: 15px; }
+  
+  .alert-error {
+    background: #fef2f2; border-left: 4px solid #ef4444; color: #7f1d1d;
+    padding: 12px 16px; border-radius: 8px; margin-bottom: 24px; font-size: 14px;
+  }
+  .form-row { margin-bottom: 20px; }
+  .field-label { display: block; font-weight: 600; font-size: 14px; color: #1e293b; margin-bottom: 8px; }
+  .field-arabic { font-weight: 400; color: #64748b; font-size: 13px; }
+  
+  .form-field input[type="text"],
+  .form-field select {
+    width: 100%; padding: 12px 14px; border: 1px solid #cbd5e1;
+    border-radius: 8px; font-size: 15px; box-sizing: border-box;
+    outline: none; transition: border-color 0.2s; color: #1e293b;
+  }
+  .form-field input:focus, .form-field select:focus { border-color: #0a61d0; }
+  
+  /* Champ téléphone avec drapeau */
+  .phone-input-wrapper {
+    display: flex; border: 1px solid #cbd5e1; border-radius: 8px;
+    overflow: hidden; height: 46px; background: #fff;
+  }
+  .phone-input-wrapper:focus-within { border-color: #0a61d0; }
+  
+  .phone-flag-selector {
+    display: flex;
+    align-items: center;
+    background-color: #f1f5f9;
+    padding: 0 12px 0 38px; 
+    border-right: 1px solid #cbd5e1;
+    gap: 6px;
+    position: relative;
+    background-repeat: no-repeat;
+    background-position: 10px center;
+    background-size: 22px;
+  }
+  
+  .phone-flag-selector.flag-ma {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='24'%3E%3Crect width='32' height='24' fill='%23CE1126'/%3E%3Cpath d='M16 4 L17.5 10.5 L24 10.5 L18 14.5 L19.5 21 L16 16 L12.5 21 L14 14.5 L8 10.5 L14.5 10.5 Z' fill='%2300A859'/%3E%3C/svg%3E");
+  }
+
+  .phone-flag-display { display: none !important; }
+  .phone-country-select { display: none; }
+  
+  .phone-input {
+    flex: 1; border: none; padding: 0 14px; outline: none; font-size: 15px; width: 100%;
+  }
+
+  /* Boutons */
+  .form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 32px; }
+  .btn { padding: 10px 24px; border-radius: 6px; font-size: 15px; font-weight: 600; cursor: pointer; border: none; }
+  .btn-cancel { background: #f1f5f9; color: #475569; }
+  .btn-submit { background: #0a61d0; color: white; }
+  .btn-submit:hover { background: #094ea6; }
+
+  /* Toast Styles */
+  .toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    padding: 14px 20px;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    z-index: 2000;
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  .toast.hidden {
+    display: none;
+  }
+
+  .toast.success {
+    background: #10b981;
+    color: white;
+  }
+
+  .toast.error {
+    background: #ef4444;
+    color: white;
+  }
+
+  .toast-icon {
+    font-size: 18px;
+    font-weight: bold;
+  }
+
+  .toast-message {
+    flex: 1;
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(100px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideOutRight {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateX(100px);
+    }
+  }
+
+  .toast.hide {
+    animation: slideOutRight 0.3s ease-in;
+  }
+</style>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast hidden">
+  <span class="toast-icon" id="toastIcon">✓</span>
+  <span class="toast-message" id="toastMessage"></span>
+</div>
+
+<section class="clients-page-form">
+  <div class="form-container">
+    <div class="clients-section clients-add">
+      <div class="form-header">
+        <h2><%= client && client._id ? 'Modifier un Client' : 'Ajouter un Client' %></h2>
+        <p><%= client && client._id ? 'Mettez à jour les informations du client' : 'Créez un nouveau client pour faciliter les envois futurs' %></p>
+      </div>
+
+      <form method="POST" action="<%= typeof action !== 'undefined' ? action : '' %>" class="clients-add-form" id="clientForm">
+        
+        
+        <div class="form-row">
+          <label class="form-field">
+            <span class="field-label">Nom <span class="field-arabic">(الاسم الكامل)</span></span>
+            <input type="text" name="name" value="<%= (typeof client !== 'undefined' && client) ? client.name : '' %>" placeholder="Ex: SARA" required/>
+          </label>
+        </div>
+
+        <div class="form-row">
+          <label class="form-field">
+            <span class="field-label">Ville <span class="field-arabic">(المدينة)</span></span>
+            <select name="city" required>
+              <option value="">Sélectionner une ville</option>
+              <% if (typeof cities !== 'undefined' && cities) { %>
+                <% cities.forEach(city => { %>
+                  <option value="<%= city.name %>" <%= (typeof client !== 'undefined' && client && client.city === city.name) ? 'selected' : '' %>><%= city.name %></option>
+                <% }) %>
+              <% } %>
+            </select>
+          </label>
+        </div>
+
+        <div class="form-row">
+          <label class="form-field">
+            <span class="field-label">Téléphone <span class="field-arabic">(رقم الهاتف)</span></span>
+            <div class="phone-input-wrapper">
+              <div class="phone-flag-selector flag-ma">
+                <svg class="phone-dropdown-arrow" viewBox="0 0 24 24" width="16" height="16">
+                  <path fill="currentColor" d="M7 10l5 5 5-5z"></path>
+                </svg>
+                <select class="phone-country-select" name="phone_country">
+                  <option value="ma">Maroc (+212)</option>
+                </select>
+              </div>
+              <input type="tel" name="phone" class="phone-input" value="<%= (typeof client !== 'undefined' && client) ? client.phone : '' %>" placeholder="06..." required/>
+            </div>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-cancel" type="reset">Annuler</button>
+          <button class="btn btn-submit" type="submit"><%= (typeof client !== 'undefined' && client && client._id) ? 'Modifier' : 'Ajouter' %></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Toast Notification
+  function showToast(message, isError = false, duration = 3000) {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toastMessage');
+    const toastIcon = document.getElementById('toastIcon');
+    
+    toast.classList.remove('error', 'success', 'hide');
+    toastIcon.textContent = isError ? '✕' : '✓';
+    toast.classList.add(isError ? 'error' : 'success');
+    toastMessage.textContent = message;
+    toast.classList.remove('hidden');
+    
+    setTimeout(() => {
+      toast.classList.add('hide');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 300);
+    }, duration);
+  }
+
+  // Handle form submission
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('clientForm');
+    if (!form) {
+      console.error('Form not found with ID clientForm');
+      return;
+    }
+    
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      console.log('Form submitted');
+      
+      const formData = {
+        name: (document.querySelector('input[name="name"]') || {}).value || '',
+        phone: (document.querySelector('input[name="phone"]') || {}).value || '',
+        city: (document.querySelector('select[name="city"]') || {}).value || '',
+      };
+      
+      const emailField = document.querySelector('input[name="email"]');
+      if (emailField && emailField.value) {
+        formData.email = emailField.value;
+      }
+      
+      console.log('Form data:', formData);
+
+      try {
+        const action = form.getAttribute('action');
+        const method = action.includes('?_method=PUT') ? 'PUT' : 'POST';
+        const url = action.replace('?_method=PUT', '');
+        
+        console.log('Sending to:', url, 'Method:', method);
+        
+        const response = await fetch(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        console.log('Response status:', response.status);
+        const data = await response.json() || {};
+        console.log('Response data:', data);
+
+        if (!response.ok) {
+          // Afficher les erreurs en toast
+          if (data.errors && Array.isArray(data.errors)) {
+            data.errors.forEach(err => {
+              showToast(err.msg || 'Erreur', true, 4000);
+            });
+          } else if (data.error) {
+            showToast(data.error, true, 4000);
+          } else {
+            showToast('Erreur lors de l\'ajout/modification', true, 4000);
+          }
+        } else {
+          const successMsg = action.includes('_method=PUT') 
+            ? 'Client modifié avec succès ✓' 
+            : 'Client ajouté avec succès ✓';
+          showToast(successMsg, false);
+          setTimeout(() => {
+            window.location.href = '/clients';
+          }, 2000);
+        }
+      } catch (err) {
+        console.error('Erreur:', err);
+        showToast('Erreur lors du traitement: ' + err.message, true, 4000);
+      }
+    });
+  });
+</script>

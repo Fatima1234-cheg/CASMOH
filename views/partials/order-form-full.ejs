@@ -1,0 +1,693 @@
+<!-- Reusable Full Order Form Section -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
+
+<section class="parcel-form-reusable">
+  <!-- Stepper -->
+  <div class="stepper">
+    <div class="stepper-line"></div>
+    <div class="step active" data-step="1">
+      <div class="step-circle"><span>1</span></div>
+      <span class="step-label">Expéditeur</span>
+    </div>
+    <div class="step" data-step="2">
+      <div class="step-circle"><span>2</span></div>
+      <span class="step-label">Destinataire</span>
+    </div>
+    <div class="step" data-step="3">
+      <div class="step-circle"><span>3</span></div>
+      <span class="step-label">Colis & Paiement</span>
+    </div>
+  </div>
+
+  <form method="POST" action="/orders" enctype="multipart/form-data" id="parcelForm">
+    <input type="hidden" name="direction" value="<%= currentDirection %>">
+
+    <!-- Étape 1 : Sender Information -->
+    <div class="step-content active" data-step="1">
+      <div class="card card-blue">
+        <div class="card-accent blue"></div>
+        <div class="card-body">
+          <h2 class="card-title">Expéditeur</h2>
+          <p class="card-subtitle">Informations sur l'expéditeur</p>
+
+          <div class="field-group">
+            <label>Nom <span class="label-ar">(الاسم الكامل)</span></label>
+            <input type="text" name="senderName" value="" placeholder="" required>
+          </div>
+
+          <div class="field-group">
+            <label>Ville <span class="label-ar">(المدينة)</span></label>
+            <input type="text" name="senderCity" placeholder="Entrer le nom de la ville" required>
+          </div>
+
+          <div class="field-group">
+            <label>Telephone <span class="label-ar">(رقم الهاتف)</span></label>
+            <div class="phone-input" data-phone-block data-step="1">
+              <div class="cc-picker" data-flagpicker>
+                <div class="cc-toggle" data-toggle>
+                  <span class="flag-icon" data-flagimg></span>
+                  <span data-dial-text><%= currentDirection === 'MA-FR' ? '+212' : '+33' %></span>
+                  <span class="arrow">▼</span>
+                </div>
+               <div data-menu hidden>
+  <button type="button" data-country data-dial="+93" data-code="af"><span class="flag-icon flag-icon-af"></span> Afghanistan +93</button>
+  <button type="button" data-country data-dial="+355" data-code="al"><span class="flag-icon flag-icon-al"></span> Albanie +355</button>
+  <button type="button" data-country data-dial="+213" data-code="dz"><span class="flag-icon flag-icon-dz"></span> Algérie +213</button>
+  <button type="button" data-country data-dial="+376" data-code="ad"><span class="flag-icon flag-icon-ad"></span> Andorre +376</button>
+  <button type="button" data-country data-dial="+244" data-code="ao"><span class="flag-icon flag-icon-ao"></span> Angola +244</button>
+  <button type="button" data-country data-dial="+1268" data-code="ag"><span class="flag-icon flag-icon-ag"></span> Antigua-et-Barbuda +1-268</button>
+  <button type="button" data-country data-dial="+54" data-code="ar"><span class="flag-icon flag-icon-ar"></span> Argentine +54</button>
+  <button type="button" data-country data-dial="+374" data-code="am"><span class="flag-icon flag-icon-am"></span> Arménie +374</button>
+  <button type="button" data-country data-dial="+61" data-code="au"><span class="flag-icon flag-icon-au"></span> Australie +61</button>
+  <button type="button" data-country data-dial="+43" data-code="at"><span class="flag-icon flag-icon-at"></span> Autriche +43</button>
+  <button type="button" data-country data-dial="+994" data-code="az"><span class="flag-icon flag-icon-az"></span> Azerbaïdjan +994</button>
+  <button type="button" data-country data-dial="+1242" data-code="bs"><span class="flag-icon flag-icon-bs"></span> Bahamas +1-242</button>
+  <button type="button" data-country data-dial="+973" data-code="bh"><span class="flag-icon flag-icon-bh"></span> Bahreïn +973</button>
+  <button type="button" data-country data-dial="+880" data-code="bd"><span class="flag-icon flag-icon-bd"></span> Bangladesh +880</button>
+  <button type="button" data-country data-dial="+1246" data-code="bb"><span class="flag-icon flag-icon-bb"></span> Barbade +1-246</button>
+  <button type="button" data-country data-dial="+375" data-code="by"><span class="flag-icon flag-icon-by"></span> Biélorussie +375</button>
+  <button type="button" data-country data-dial="+32" data-code="be"><span class="flag-icon flag-icon-be"></span> Belgique +32</button>
+  <button type="button" data-country data-dial="+501" data-code="bz"><span class="flag-icon flag-icon-bz"></span> Belize +501</button>
+  <button type="button" data-country data-dial="+229" data-code="bj"><span class="flag-icon flag-icon-bj"></span> Bénin +229</button>
+  <button type="button" data-country data-dial="+975" data-code="bt"><span class="flag-icon flag-icon-bt"></span> Bhoutan +975</button>
+  <button type="button" data-country data-dial="+591" data-code="bo"><span class="flag-icon flag-icon-bo"></span> Bolivie +591</button>
+  <button type="button" data-country data-dial="+387" data-code="ba"><span class="flag-icon flag-icon-ba"></span> Bosnie-Herzégovine +387</button>
+  <button type="button" data-country data-dial="+267" data-code="bw"><span class="flag-icon flag-icon-bw"></span> Botswana +267</button>
+  <button type="button" data-country data-dial="+55" data-code="br"><span class="flag-icon flag-icon-br"></span> Brésil +55</button>
+  <button type="button" data-country data-dial="+673" data-code="bn"><span class="flag-icon flag-icon-bn"></span> Brunéi +673</button>
+  <button type="button" data-country data-dial="+359" data-code="bg"><span class="flag-icon flag-icon-bg"></span> Bulgarie +359</button>
+  <button type="button" data-country data-dial="+226" data-code="bf"><span class="flag-icon flag-icon-bf"></span> Burkina Faso +226</button>
+  <button type="button" data-country data-dial="+257" data-code="bi"><span class="flag-icon flag-icon-bi"></span> Burundi +257</button>
+  <button type="button" data-country data-dial="+855" data-code="kh"><span class="flag-icon flag-icon-kh"></span> Cambodge +855</button>
+  <button type="button" data-country data-dial="+237" data-code="cm"><span class="flag-icon flag-icon-cm"></span> Cameroun +237</button>
+  <button type="button" data-country data-dial="+1" data-code="ca"><span class="flag-icon flag-icon-ca"></span> Canada +1</button>
+  <button type="button" data-country data-dial="+238" data-code="cv"><span class="flag-icon flag-icon-cv"></span> Cap-Vert +238</button>
+  <button type="button" data-country data-dial="+236" data-code="cf"><span class="flag-icon flag-icon-cf"></span> République centrafricaine +236</button>
+  <button type="button" data-country data-dial="+235" data-code="td"><span class="flag-icon flag-icon-td"></span> Tchad +235</button>
+  <button type="button" data-country data-dial="+56" data-code="cl"><span class="flag-icon flag-icon-cl"></span> Chili +56</button>
+  <button type="button" data-country data-dial="+86" data-code="cn"><span class="flag-icon flag-icon-cn"></span> Chine +86</button>
+  <button type="button" data-country data-dial="+57" data-code="co"><span class="flag-icon flag-icon-co"></span> Colombie +57</button>
+  <button type="button" data-country data-dial="+269" data-code="km"><span class="flag-icon flag-icon-km"></span> Comores +269</button>
+  <button type="button" data-country data-dial="+242" data-code="cg"><span class="flag-icon flag-icon-cg"></span> République du Congo +242</button>
+  <button type="button" data-country data-dial="+243" data-code="cd"><span class="flag-icon flag-icon-cd"></span> République démocratique du Congo +243</button>
+  <button type="button" data-country data-dial="+506" data-code="cr"><span class="flag-icon flag-icon-cr"></span> Costa Rica +506</button>
+  <button type="button" data-country data-dial="+225" data-code="ci"><span class="flag-icon flag-icon-ci"></span> Côte d'Ivoire +225</button>
+  <button type="button" data-country data-dial="+385" data-code="hr"><span class="flag-icon flag-icon-hr"></span> Croatie +385</button>
+  <button type="button" data-country data-dial="+53" data-code="cu"><span class="flag-icon flag-icon-cu"></span> Cuba +53</button>
+  <button type="button" data-country data-dial="+357" data-code="cy"><span class="flag-icon flag-icon-cy"></span> Chypre +357</button>
+  <button type="button" data-country data-dial="+420" data-code="cz"><span class="flag-icon flag-icon-cz"></span> Tchéquie +420</button>
+  <button type="button" data-country data-dial="+45" data-code="dk"><span class="flag-icon flag-icon-dk"></span> Danemark +45</button>
+  <button type="button" data-country data-dial="+253" data-code="dj"><span class="flag-icon flag-icon-dj"></span> Djibouti +253</button>
+  <button type="button" data-country data-dial="+1767" data-code="dm"><span class="flag-icon flag-icon-dm"></span> Dominique +1-767</button>
+  <button type="button" data-country data-dial="+1809" data-code="do"><span class="flag-icon flag-icon-do"></span> République dominicaine +1-809</button>
+  <button type="button" data-country data-dial="+593" data-code="ec"><span class="flag-icon flag-icon-ec"></span> Équateur +593</button>
+  <button type="button" data-country data-dial="+20" data-code="eg"><span class="flag-icon flag-icon-eg"></span> Égypte +20</button>
+  <button type="button" data-country data-dial="+503" data-code="sv"><span class="flag-icon flag-icon-sv"></span> Salvador +503</button>
+  <button type="button" data-country data-dial="+240" data-code="gq"><span class="flag-icon flag-icon-gq"></span> Guinée équatoriale +240</button>
+  <button type="button" data-country data-dial="+291" data-code="er"><span class="flag-icon flag-icon-er"></span> Érythrée +291</button>
+  <button type="button" data-country data-dial="+372" data-code="ee"><span class="flag-icon flag-icon-ee"></span> Estonie +372</button>
+  <button type="button" data-country data-dial="+268" data-code="sz"><span class="flag-icon flag-icon-sz"></span> Eswatini +268</button>
+  <button type="button" data-country data-dial="+251" data-code="et"><span class="flag-icon flag-icon-et"></span> Éthiopie +251</button>
+  <button type="button" data-country data-dial="+679" data-code="fj"><span class="flag-icon flag-icon-fj"></span> Fidji +679</button>
+  <button type="button" data-country data-dial="+358" data-code="fi"><span class="flag-icon flag-icon-fi"></span> Finlande +358</button>
+  <button type="button" data-country data-dial="+33" data-code="fr"><span class="flag-icon flag-icon-fr"></span> France +33</button>
+  <button type="button" data-country data-dial="+241" data-code="ga"><span class="flag-icon flag-icon-ga"></span> Gabon +241</button>
+  <button type="button" data-country data-dial="+220" data-code="gm"><span class="flag-icon flag-icon-gm"></span> Gambie +220</button>
+  <button type="button" data-country data-dial="+995" data-code="ge"><span class="flag-icon flag-icon-ge"></span> Géorgie +995</button>
+  <button type="button" data-country data-dial="+49" data-code="de"><span class="flag-icon flag-icon-de"></span> Allemagne +49</button>
+  <button type="button" data-country data-dial="+233" data-code="gh"><span class="flag-icon flag-icon-gh"></span> Ghana +233</button>
+  <button type="button" data-country data-dial="+30" data-code="gr"><span class="flag-icon flag-icon-gr"></span> Grèce +30</button>
+  <button type="button" data-country data-dial="+1473" data-code="gd"><span class="flag-icon flag-icon-gd"></span> Grenade +1-473</button>
+  <button type="button" data-country data-dial="+502" data-code="gt"><span class="flag-icon flag-icon-gt"></span> Guatemala +502</button>
+  <button type="button" data-country data-dial="+224" data-code="gn"><span class="flag-icon flag-icon-gn"></span> Guinée +224</button>
+  <button type="button" data-country data-dial="+245" data-code="gw"><span class="flag-icon flag-icon-gw"></span> Guinée-Bissau +245</button>
+  <button type="button" data-country data-dial="+592" data-code="gy"><span class="flag-icon flag-icon-gy"></span> Guyana +592</button>
+  <button type="button" data-country data-dial="+509" data-code="ht"><span class="flag-icon flag-icon-ht"></span> Haïti +509</button>
+  <button type="button" data-country data-dial="+504" data-code="hn"><span class="flag-icon flag-icon-hn"></span> Honduras +504</button>
+  <button type="button" data-country data-dial="+36" data-code="hu"><span class="flag-icon flag-icon-hu"></span> Hongrie +36</button>
+  <button type="button" data-country data-dial="+354" data-code="is"><span class="flag-icon flag-icon-is"></span> Islande +354</button>
+  <button type="button" data-country data-dial="+91" data-code="in"><span class="flag-icon flag-icon-in"></span> Inde +91</button>
+  <button type="button" data-country data-dial="+62" data-code="id"><span class="flag-icon flag-icon-id"></span> Indonésie +62</button>
+  <button type="button" data-country data-dial="+98" data-code="ir"><span class="flag-icon flag-icon-ir"></span> Iran +98</button>
+  <button type="button" data-country data-dial="+964" data-code="iq"><span class="flag-icon flag-icon-iq"></span> Irak +964</button>
+  <button type="button" data-country data-dial="+353" data-code="ie"><span class="flag-icon flag-icon-ie"></span> Irlande +353</button>
+  <button type="button" data-country data-dial="+972" data-code="il"><span class="flag-icon flag-icon-il"></span> Israël +972</button>
+  <button type="button" data-country data-dial="+39" data-code="it"><span class="flag-icon flag-icon-it"></span> Italie +39</button>
+  <button type="button" data-country data-dial="+1876" data-code="jm"><span class="flag-icon flag-icon-jm"></span> Jamaïque +1-876</button>
+  <button type="button" data-country data-dial="+81" data-code="jp"><span class="flag-icon flag-icon-jp"></span> Japon +81</button>
+  <button type="button" data-country data-dial="+962" data-code="jo"><span class="flag-icon flag-icon-jo"></span> Jordanie +962</button>
+  <button type="button" data-country data-dial="+7" data-code="kz"><span class="flag-icon flag-icon-kz"></span> Kazakhstan +7</button>
+  <button type="button" data-country data-dial="+254" data-code="ke"><span class="flag-icon flag-icon-ke"></span> Kenya +254</button>
+  <button type="button" data-country data-dial="+686" data-code="ki"><span class="flag-icon flag-icon-ki"></span> Kiribati +686</button>
+  <button type="button" data-country data-dial="+965" data-code="kw"><span class="flag-icon flag-icon-kw"></span> Koweït +965</button>
+  <button type="button" data-country data-dial="+996" data-code="kg"><span class="flag-icon flag-icon-kg"></span> Kirghizistan +996</button>
+  <button type="button" data-country data-dial="+856" data-code="la"><span class="flag-icon flag-icon-la"></span> Laos +856</button>
+  <button type="button" data-country data-dial="+371" data-code="lv"><span class="flag-icon flag-icon-lv"></span> Lettonie +371</button>
+  <button type="button" data-country data-dial="+961" data-code="lb"><span class="flag-icon flag-icon-lb"></span> Liban +961</button>
+  <button type="button" data-country data-dial="+266" data-code="ls"><span class="flag-icon flag-icon-ls"></span> Lesotho +266</button>
+  <button type="button" data-country data-dial="+231" data-code="lr"><span class="flag-icon flag-icon-lr"></span> Libéria +231</button>
+  <button type="button" data-country data-dial="+218" data-code="ly"><span class="flag-icon flag-icon-ly"></span> Libye +218</button>
+  <button type="button" data-country data-dial="+423" data-code="li"><span class="flag-icon flag-icon-li"></span> Liechtenstein +423</button>
+  <button type="button" data-country data-dial="+370" data-code="lt"><span class="flag-icon flag-icon-lt"></span> Lituanie +370</button>
+  <button type="button" data-country data-dial="+352" data-code="lu"><span class="flag-icon flag-icon-lu"></span> Luxembourg +352</button>
+  <button type="button" data-country data-dial="+261" data-code="mg"><span class="flag-icon flag-icon-mg"></span> Madagascar +261</button>
+  <button type="button" data-country data-dial="+265" data-code="mw"><span class="flag-icon flag-icon-mw"></span> Malawi +265</button>
+  <button type="button" data-country data-dial="+60" data-code="my"><span class="flag-icon flag-icon-my"></span> Malaisie +60</button>
+  <button type="button" data-country data-dial="+960" data-code="mv"><span class="flag-icon flag-icon-mv"></span> Maldives +960</button>
+  <button type="button" data-country data-dial="+223" data-code="ml"><span class="flag-icon flag-icon-ml"></span> Mali +223</button>
+  <button type="button" data-country data-dial="+356" data-code="mt"><span class="flag-icon flag-icon-mt"></span> Malte +356</button>
+  <button type="button" data-country data-dial="+692" data-code="mh"><span class="flag-icon flag-icon-mh"></span> Îles Marshall +692</button>
+  <button type="button" data-country data-dial="+222" data-code="mr"><span class="flag-icon flag-icon-mr"></span> Mauritanie +222</button>
+  <button type="button" data-country data-dial="+230" data-code="mu"><span class="flag-icon flag-icon-mu"></span> Maurice +230</button>
+  <button type="button" data-country data-dial="+52" data-code="mx"><span class="flag-icon flag-icon-mx"></span> Mexique +52</button>
+  <button type="button" data-country data-dial="+691" data-code="fm"><span class="flag-icon flag-icon-fm"></span> Micronésie +691</button>
+  <button type="button" data-country data-dial="+373" data-code="md"><span class="flag-icon flag-icon-md"></span> Moldavie +373</button>
+  <button type="button" data-country data-dial="+377" data-code="mc"><span class="flag-icon flag-icon-mc"></span> Monaco +377</button>
+  <button type="button" data-country data-dial="+976" data-code="mn"><span class="flag-icon flag-icon-mn"></span> Mongolie +976</button>
+  <button type="button" data-country data-dial="+382" data-code="me"><span class="flag-icon flag-icon-me"></span> Monténégro +382</button>
+  <button type="button" data-country data-dial="+212" data-code="ma"><span class="flag-icon flag-icon-ma"></span> Maroc +212</button>
+  <button type="button" data-country data-dial="+258" data-code="mz"><span class="flag-icon flag-icon-mz"></span> Mozambique +258</button>
+  <button type="button" data-country data-dial="+95" data-code="mm"><span class="flag-icon flag-icon-mm"></span> Myanmar (Birmanie) +95</button>
+  <button type="button" data-country data-dial="+264" data-code="na"><span class="flag-icon flag-icon-na"></span> Namibie +264</button>
+  <button type="button" data-country data-dial="+674" data-code="nr"><span class="flag-icon flag-icon-nr"></span> Nauru +674</button>
+  <button type="button" data-country data-dial="+977" data-code="np"><span class="flag-icon flag-icon-np"></span> Népal +977</button>
+  <button type="button" data-country data-dial="+31" data-code="nl"><span class="flag-icon flag-icon-nl"></span> Pays-Bas +31</button>
+  <button type="button" data-country data-dial="+64" data-code="nz"><span class="flag-icon flag-icon-nz"></span> Nouvelle-Zélande +64</button>
+  <button type="button" data-country data-dial="+505" data-code="ni"><span class="flag-icon flag-icon-ni"></span> Nicaragua +505</button>
+  <button type="button" data-country data-dial="+227" data-code="ne"><span class="flag-icon flag-icon-ne"></span> Niger +227</button>
+  <button type="button" data-country data-dial="+234" data-code="ng"><span class="flag-icon flag-icon-ng"></span> Nigeria +234</button>
+  <button type="button" data-country data-dial="+850" data-code="kp"><span class="flag-icon flag-icon-kp"></span> Corée du Nord +850</button>
+  <button type="button" data-country data-dial="+389" data-code="mk"><span class="flag-icon flag-icon-mk"></span> Macédoine du Nord +389</button>
+  <button type="button" data-country data-dial="+47" data-code="no"><span class="flag-icon flag-icon-no"></span> Norvège +47</button>
+  <button type="button" data-country data-dial="+968" data-code="om"><span class="flag-icon flag-icon-om"></span> Oman +968</button>
+  <button type="button" data-country data-dial="+92" data-code="pk"><span class="flag-icon flag-icon-pk"></span> Pakistan +92</button>
+  <button type="button" data-country data-dial="+680" data-code="pw"><span class="flag-icon flag-icon-pw"></span> Palaos +680</button>
+  <button type="button" data-country data-dial="+970" data-code="ps"><span class="flag-icon flag-icon-ps"></span> Palestine +970</button>
+  <button type="button" data-country data-dial="+507" data-code="pa"><span class="flag-icon flag-icon-pa"></span> Panama +507</button>
+  <button type="button" data-country data-dial="+675" data-code="pg"><span class="flag-icon flag-icon-pg"></span> Papouasie-Nouvelle-Guinée +675</button>
+  <button type="button" data-country data-dial="+595" data-code="py"><span class="flag-icon flag-icon-py"></span> Paraguay +595</button>
+  <button type="button" data-country data-dial="+51" data-code="pe"><span class="flag-icon flag-icon-pe"></span> Pérou +51</button>
+  <button type="button" data-country data-dial="+63" data-code="ph"><span class="flag-icon flag-icon-ph"></span> Philippines +63</button>
+  <button type="button" data-country data-dial="+48" data-code="pl"><span class="flag-icon flag-icon-pl"></span> Pologne +48</button>
+  <button type="button" data-country data-dial="+351" data-code="pt"><span class="flag-icon flag-icon-pt"></span> Portugal +351</button>
+  <button type="button" data-country data-dial="+974" data-code="qa"><span class="flag-icon flag-icon-qa"></span> Qatar +974</button>
+  <button type="button" data-country data-dial="+40" data-code="ro"><span class="flag-icon flag-icon-ro"></span> Roumanie +40</button>
+  <button type="button" data-country data-dial="+7" data-code="ru"><span class="flag-icon flag-icon-ru"></span> Russie +7</button>
+  <button type="button" data-country data-dial="+250" data-code="rw"><span class="flag-icon flag-icon-rw"></span> Rwanda +250</button>
+  <button type="button" data-country data-dial="+1869" data-code="kn"><span class="flag-icon flag-icon-kn"></span> Saint-Christophe-et-Niévès +1-869</button>
+  <button type="button" data-country data-dial="+1758" data-code="lc"><span class="flag-icon flag-icon-lc"></span> Sainte-Lucie +1-758</button>
+  <button type="button" data-country data-dial="+1784" data-code="vc"><span class="flag-icon flag-icon-vc"></span> Saint-Vincent-et-les-Grenadines +1-784</button>
+  <button type="button" data-country data-dial="+685" data-code="ws"><span class="flag-icon flag-icon-ws"></span> Samoa +685</button>
+  <button type="button" data-country data-dial="+378" data-code="sm"><span class="flag-icon flag-icon-sm"></span> Saint-Marin +378</button>
+  <button type="button" data-country data-dial="+239" data-code="st"><span class="flag-icon flag-icon-st"></span> Sao Tomé-et-Principe +239</button>
+  <button type="button" data-country data-dial="+966" data-code="sa"><span class="flag-icon flag-icon-sa"></span> Arabie Saoudite +966</button>
+  <button type="button" data-country data-dial="+221" data-code="sn"><span class="flag-icon flag-icon-sn"></span> Sénégal +221</button>
+  <button type="button" data-country data-dial="+381" data-code="rs"><span class="flag-icon flag-icon-rs"></span> Serbie +381</button>
+  <button type="button" data-country data-dial="+248" data-code="sc"><span class="flag-icon flag-icon-sc"></span> Seychelles +248</button>
+  <button type="button" data-country data-dial="+232" data-code="sl"><span class="flag-icon flag-icon-sl"></span> Sierra Leone +232</button>
+  <button type="button" data-country data-dial="+65" data-code="sg"><span class="flag-icon flag-icon-sg"></span> Singapour +65</button>
+  <button type="button" data-country data-dial="+421" data-code="sk"><span class="flag-icon flag-icon-sk"></span> Slovaquie +421</button>
+  <button type="button" data-country data-dial="+386" data-code="si"><span class="flag-icon flag-icon-si"></span> Slovénie +386</button>
+  <button type="button" data-country data-dial="+677" data-code="sb"><span class="flag-icon flag-icon-sb"></span> Îles Salomon +677</button>
+  <button type="button" data-country data-dial="+252" data-code="so"><span class="flag-icon flag-icon-so"></span> Somalie +252</button>
+  <button type="button" data-country data-dial="+27" data-code="za"><span class="flag-icon flag-icon-za"></span> Afrique du Sud +27</button>
+  <button type="button" data-country data-dial="+82" data-code="kr"><span class="flag-icon flag-icon-kr"></span> Corée du Sud +82</button>
+  <button type="button" data-country data-dial="+211" data-code="ss"><span class="flag-icon flag-icon-ss"></span> Soudan du Sud +211</button>
+  <button type="button" data-country data-dial="+34" data-code="es"><span class="flag-icon flag-icon-es"></span> Espagne +34</button>
+  <button type="button" data-country data-dial="+94" data-code="lk"><span class="flag-icon flag-icon-lk"></span> Sri Lanka +94</button>
+  <button type="button" data-country data-dial="+249" data-code="sd"><span class="flag-icon flag-icon-sd"></span> Soudan +249</button>
+  <button type="button" data-country data-dial="+597" data-code="sr"><span class="flag-icon flag-icon-sr"></span> Suriname +597</button>
+  <button type="button" data-country data-dial="+46" data-code="se"><span class="flag-icon flag-icon-se"></span> Suède +46</button>
+  <button type="button" data-country data-dial="+41" data-code="ch"><span class="flag-icon flag-icon-ch"></span> Suisse +41</button>
+  <button type="button" data-country data-dial="+963" data-code="sy"><span class="flag-icon flag-icon-sy"></span> Syrie +963</button>
+  <button type="button" data-country data-dial="+886" data-code="tw"><span class="flag-icon flag-icon-tw"></span> Taïwan +886</button>
+  <button type="button" data-country data-dial="+992" data-code="tj"><span class="flag-icon flag-icon-tj"></span> Tadjikistan +992</button>
+  <button type="button" data-country data-dial="+255" data-code="tz"><span class="flag-icon flag-icon-tz"></span> Tanzanie +255</button>
+  <button type="button" data-country data-dial="+66" data-code="th"><span class="flag-icon flag-icon-th"></span> Thaïlande +66</button>
+  <button type="button" data-country data-dial="+670" data-code="tl"><span class="flag-icon flag-icon-tl"></span> Timor oriental +670</button>
+  <button type="button" data-country data-dial="+228" data-code="tg"><span class="flag-icon flag-icon-tg"></span> Togo +228</button>
+  <button type="button" data-country data-dial="+676" data-code="to"><span class="flag-icon flag-icon-to"></span> Tonga +676</button>
+  <button type="button" data-country data-dial="+1868" data-code="tt"><span class="flag-icon flag-icon-tt"></span> Trinité-et-Tobago +1-868</button>
+  <button type="button" data-country data-dial="+216" data-code="tn"><span class="flag-icon flag-icon-tn"></span> Tunisie +216</button>
+  <button type="button" data-country data-dial="+90" data-code="tr"><span class="flag-icon flag-icon-tr"></span> Turquie +90</button>
+  <button type="button" data-country data-dial="+993" data-code="tm"><span class="flag-icon flag-icon-tm"></span> Turkménistan +993</button>
+  <button type="button" data-country data-dial="+688" data-code="tv"><span class="flag-icon flag-icon-tv"></span> Tuvalu +688</button>
+  <button type="button" data-country data-dial="+256" data-code="ug"><span class="flag-icon flag-icon-ug"></span> Ouganda +256</button>
+  <button type="button" data-country data-dial="+380" data-code="ua"><span class="flag-icon flag-icon-ua"></span> Ukraine +380</button>
+  <button type="button" data-country data-dial="+971" data-code="ae"><span class="flag-icon flag-icon-ae"></span> Émirats arabes unis +971</button>
+  <button type="button" data-country data-dial="+44" data-code="gb"><span class="flag-icon flag-icon-gb"></span> Royaume-Uni +44</button>
+  <button type="button" data-country data-dial="+1" data-code="us"><span class="flag-icon flag-icon-us"></span> États-Unis +1</button>
+  <button type="button" data-country data-dial="+598" data-code="uy"><span class="flag-icon flag-icon-uy"></span> Uruguay +598</button>
+  <button type="button" data-country data-dial="+998" data-code="uz"><span class="flag-icon flag-icon-uz"></span> Ouzbékistan +998</button>
+  <button type="button" data-country data-dial="+678" data-code="vu"><span class="flag-icon flag-icon-vu"></span> Vanuatu +678</button>
+  <button type="button" data-country data-dial="+379" data-code="va"><span class="flag-icon flag-icon-va"></span> Vatican +379</button>
+  <button type="button" data-country data-dial="+58" data-code="ve"><span class="flag-icon flag-icon-ve"></span> Venezuela +58</button>
+  <button type="button" data-country data-dial="+84" data-code="vn"><span class="flag-icon flag-icon-vn"></span> Viêt Nam +84</button>
+  <button type="button" data-country data-dial="+967" data-code="ye"><span class="flag-icon flag-icon-ye"></span> Yémen +967</button>
+  <button type="button" data-country data-dial="+260" data-code="zm"><span class="flag-icon flag-icon-zm"></span> Zambie +260</button>
+  <button type="button" data-country data-dial="+263" data-code="zw"><span class="flag-icon flag-icon-zw"></span> Zimbabwe +263</button>
+</div>
+                <input type="hidden" data-dial value="<%= currentDirection === 'MA-FR' ? '+212' : '+33' %>">
+              </div>
+              <input type="tel" data-local value="" placeholder="Entrer le numéro" class="phone-field" required>
+              <input type="hidden" name="senderPhone" data-full value="" required>
+              <button type="button" class="whatsapp-btn" data-wa aria-label="WhatsApp">
+                <svg viewBox="0 0 24 24" fill="white" width="22" height="22"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-buttons">
+        <button type="button" class="btn btn-next" onclick="goToFormStep(2)">Continuer →</button>
+      </div>
+    </div>
+
+    <!-- Étape 2 : Receiver Information -->
+    <div class="step-content" data-step="2">
+      <div class="card card-green">
+        <div class="card-accent green"></div>
+        <div class="card-body">
+          <h2 class="card-title">Destinataire</h2>
+          <p class="card-subtitle">Informations sur le destinataire</p>
+
+          <div class="field-group">
+            <label>Nom <span class="label-ar">(الاسم الكامل)</span></label>
+            <input type="text" name="receiverName" value="" placeholder="" required>
+          </div>
+
+          <div class="field-group">
+            <label>Ville <span class="label-ar">(المدينة)</span></label>
+            <input type="text" name="receiverCity" placeholder="Entrer le nom de la ville" required>
+          </div>
+
+          <div class="field-group">
+            <label>A domicile</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="homeDelivery" value="false"> Non
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="homeDelivery" value="true" checked> Oui
+              </label>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label>Telephone <span class="label-ar">(رقم الهاتف)</span></label>
+            <div class="phone-input" data-phone-block data-step="2">
+              <div class="cc-picker" data-flagpicker>
+                <div class="cc-toggle" data-toggle>
+                  <span class="flag-icon" data-flagimg></span>
+                  <span data-dial-text><%= currentDirection === 'MA-FR' ? '+33' : '+212' %></span>
+                  <span class="arrow">▼</span>
+                </div>
+                <div data-menu hidden>
+                  <button type="button" data-country data-dial="+212" data-code="ma"><span class="flag-icon flag-icon-ma"></span> Morocco (المغرب) +212</button>
+                  <button type="button" data-country data-dial="+33" data-code="fr"><span class="flag-icon flag-icon-fr"></span> France +33</button>
+                  <button type="button" data-country data-dial="+34" data-code="es"><span class="flag-icon flag-icon-es"></span> Spain (España) +34</button>
+                  <button type="button" data-country data-dial="+39" data-code="it"><span class="flag-icon flag-icon-it"></span> Italy (Italia) +39</button>
+                  <button type="button" data-country data-dial="+49" data-code="de"><span class="flag-icon flag-icon-de"></span> Germany (Deutschland) +49</button>
+                  <button type="button" data-country data-dial="+44" data-code="gb"><span class="flag-icon flag-icon-gb"></span> United Kingdom +44</button>
+                  <button type="button" data-country data-dial="+1" data-code="us"><span class="flag-icon flag-icon-us"></span> United States +1</button>
+                  <button type="button" data-country data-dial="+1" data-code="ca"><span class="flag-icon flag-icon-ca"></span> Canada +1</button>
+                  <button type="button" data-country data-dial="+91" data-code="in"><span class="flag-icon flag-icon-in"></span> India +91</button>
+                  <button type="button" data-country data-dial="+86" data-code="cn"><span class="flag-icon flag-icon-cn"></span> China +86</button>
+                  <button type="button" data-country data-dial="+81" data-code="jp"><span class="flag-icon flag-icon-jp"></span> Japan +81</button>
+                  <button type="button" data-country data-dial="+82" data-code="kr"><span class="flag-icon flag-icon-kr"></span> Korea +82</button>
+                  <button type="button" data-country data-dial="+65" data-code="sg"><span class="flag-icon flag-icon-sg"></span> Singapore +65</button>
+                  <button type="button" data-country data-dial="+60" data-code="my"><span class="flag-icon flag-icon-my"></span> Malaysia +60</button>
+                  <button type="button" data-country data-dial="+27" data-code="za"><span class="flag-icon flag-icon-za"></span> South Africa +27</button>
+                  <button type="button" data-country data-dial="+234" data-code="ng"><span class="flag-icon flag-icon-ng"></span> Nigeria +234</button>
+                  <button type="button" data-country data-dial="+20" data-code="eg"><span class="flag-icon flag-icon-eg"></span> Egypt +20</button>
+                  <button type="button" data-country data-dial="+971" data-code="ae"><span class="flag-icon flag-icon-ae"></span> UAE +971</button>
+                  <button type="button" data-country data-dial="+966" data-code="sa"><span class="flag-icon flag-icon-sa"></span> Saudi Arabia +966</button>
+                  <button type="button" data-country data-dial="+98" data-code="ir"><span class="flag-icon flag-icon-ir"></span> Iran +98</button>
+                  <button type="button" data-country data-dial="+7" data-code="ru"><span class="flag-icon flag-icon-ru"></span> Russia +7</button>
+                  <button type="button" data-country data-dial="+52" data-code="mx"><span class="flag-icon flag-icon-mx"></span> Mexico +52</button>
+                  <button type="button" data-country data-dial="+54" data-code="ar"><span class="flag-icon flag-icon-ar"></span> Argentina +54</button>
+                  <button type="button" data-country data-dial="+55" data-code="br"><span class="flag-icon flag-icon-br"></span> Brazil +55</button>
+                  <button type="button" data-country data-dial="+61" data-code="au"><span class="flag-icon flag-icon-au"></span> Australia +61</button>
+                  <button type="button" data-country data-dial="+64" data-code="nz"><span class="flag-icon flag-icon-nz"></span> New Zealand +64</button>
+                  <button type="button" data-country data-dial="+358" data-code="fi"><span class="flag-icon flag-icon-fi"></span> Finland +358</button>
+                  <button type="button" data-country data-dial="+47" data-code="no"><span class="flag-icon flag-icon-no"></span> Norway +47</button>
+                  <button type="button" data-country data-dial="+46" data-code="se"><span class="flag-icon flag-icon-se"></span> Sweden +46</button>
+                </div>
+                <input type="hidden" data-dial value="<%= currentDirection === 'MA-FR' ? '+33' : '+212' %>">
+              </div>
+              <input type="tel" data-local value="" placeholder="Entrer le numéro" class="phone-field" required>
+              <input type="hidden" name="receiverPhone" data-full value="" required>
+              <button type="button" class="whatsapp-btn" data-wa aria-label="WhatsApp">
+                <svg viewBox="0 0 24 24" fill="white" width="22" height="22"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-buttons">
+        <button type="button" class="btn btn-back" onclick="goToFormStep(1)">← Retour</button>
+        <button type="button" class="btn btn-next" onclick="goToFormStep(3)">Continuer →</button>
+      </div>
+    </div>
+
+    <!-- Étape 3 : Colis & Paiement -->
+    <div class="step-content" data-step="3">
+      <div class="card card-red">
+        <div class="card-accent red"></div>
+        <div class="card-body">
+          <h2 class="card-title">Colis & Paiement</h2>
+          <p class="card-subtitle">Informations sur le colis, paiement et photos</p>
+
+          <div class="field-group">
+            <label>Payé</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="paid" value="false" checked> Non
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="paid" value="true"> Oui
+              </label>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label>Montant payé</label>
+            <input type="text" inputmode="decimal" name="paidAmount" placeholder="0.00" required>
+          </div>
+
+          <div class="field-group">
+            <label>Description du contenu <span class="label-ar">(وصف المحتوى)</span></label>
+            <textarea name="description" placeholder="Ex: vêtements, documents, électronique..." rows="3" required></textarea>
+          </div>
+
+          <div class="field-group">
+            <label>Poids (Kg) <span class="label-ar">(الوزن)</span></label>
+            <input type="text" inputmode="decimal" name="weightKg" placeholder="Ex: 5">
+          </div>
+
+          <div class="field-group">
+            <label>Nombre de colis <span class="label-ar">(عدد الطرود)</span></label>
+            <input type="text" inputmode="numeric" name="parcelsCount">
+          </div>
+
+          <div class="field-group">
+            <label>Photos des colis</label>
+            <div class="file-upload-zone" id="dropZone">
+              <label class="file-upload-label">
+                <div class="upload-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.5" width="40" height="40">
+                    <rect x="3" y="3" width="18" height="18" rx="3"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <path d="M21 15l-5-5L5 21"/>
+                    <path d="M15 3h4a2 2 0 012 2v4"/>
+                  </svg>
+                  <span class="upload-plus">+</span>
+                </div>
+                <span class="camera-label">Ajouter</span>
+                <span class="file-hint">PNG, JPG, GIF jusqu'à 10 Mo</span>
+                <input type="file" name="photos" multiple accept="image/png, image/jpeg, image/gif" hidden id="photoInput" required>
+              </label>
+            </div>
+            <div id="photoPreview" class="photo-list"></div>
+          </div>
+        </div>
+      </div>
+      <div class="nav-buttons">
+        <button type="button" class="btn btn-back" onclick="goToFormStep(2)">← Retour</button>
+        <button type="submit" class="btn-submit">Enregistrer</button>
+      </div>
+    </div>
+  </form>
+</section>
+
+<style>
+/* CSS global du formulaire (identique à l'admin) */
+.parcel-form-reusable { max-width: 820px; margin: 0 auto; padding: 2rem 1rem; font-family: 'Inter', sans-serif; }
+.stepper { display: flex; justify-content: space-between; position: relative; margin-bottom: 3rem; max-width: 600px; margin-left: auto; margin-right: auto; }
+.stepper-line { position: absolute; top: 20px; left: 0; right: 0; height: 2px; background: #e2e8f0; z-index: 1; }
+.step { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; }
+.step-circle { width: 40px; height: 40px; border-radius: 50%; background: white; border: 2px solid #e2e8f0; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #64748b; transition: all 0.3s; }
+.step.active .step-circle { border-color: #3b82f6; background: #3b82f6; color: white; box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2); }
+.step.completed .step-circle { border-color: #10b981; background: #10b981; color: white; }
+.step-label { font-size: 0.75rem; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.step-content { display: none; animation: fadeIn 0.3s ease; }
+.step-content.active { display: block; }
+
+.card { background: white; border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); position: relative; overflow: visible; margin-bottom: 2rem; }
+.card-accent { height: 4px; width: 100%; }
+.card-accent.blue { background: #3b82f6; }
+.card-accent.green { background: #10b981; }
+.card-accent.red { background: #ef4444; }
+.card-body { padding: 2rem; }
+.card-title { font-size: 1.5rem; font-weight: 800; color: #1e293b; margin-bottom: 0.5rem; }
+.card-subtitle { color: #64748b; font-size: 0.9rem; margin-bottom: 2rem; }
+
+.field-group { margin-bottom: 1.5rem; }
+.field-group label { display: block; font-weight: 600; font-size: 0.9rem; color: #334155; margin-bottom: 0.5rem; }
+.label-ar { color: #94a3b8; font-size: 0.8rem; margin-left: 4px; }
+
+input[type="text"], input[type="number"], input[type="tel"], select, textarea { 
+  width: 100%; padding: 0.75rem 1rem; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 1rem; transition: all 0.2s; 
+}
+input:focus, select:focus, textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+
+.phone-input { display: grid; grid-template-columns: auto 1fr auto; border: 1.5px solid #e2e8f0; border-radius: 10px; overflow: visible; background: white; }
+.cc-toggle { display: flex; align-items: center; gap: 8px; padding: 0 12px; border-right: 1px solid #e2e8f0; cursor: pointer; min-width: 90px; background: #f8fafc; border-radius: 10px 0 0 10px; }
+.cc-toggle:hover { background: #f1f5f9; }
+.phone-field { border: none !important; border-radius: 0 !important; box-shadow: none !important; }
+.whatsapp-btn { background: #25d366; border: none; padding: 0 15px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; border-radius: 0 10px 10px 0; }
+.whatsapp-btn:hover { background: #128c7e; }
+
+.cc-picker { position: relative; z-index: 2000; height: 100%; }
+[data-menu] { position: absolute; bottom: 100%; top: auto; left: 0; background: white; border: 1px solid #e2e8f0; border-radius: 12px; z-index: 2000; width: 320px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); max-height: 300px; overflow-y: auto; margin-bottom: 8px; }
+[data-menu] button { width: 100%; padding: 12px 16px; border: none; background: none; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 14px; color: #1e293b; transition: background 0.2s; }
+[data-menu] button:hover { background: #f8fafc; }
+.menu-divider { height: 1px; background: #f1f5f9; margin: 4px 0; }
+.flag-icon { width: 24px; height: 18px; border-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+.arrow { font-size: 10px; color: #94a3b8; }
+
+.nav-buttons { display: flex; gap: 1rem; margin-top: 2rem; }
+.btn { flex: 1; padding: 1rem; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-next { background: #3b82f6; color: white; flex: 1; }
+.btn-next:hover { background: #2563eb; transform: translateY(-1px); }
+.btn-back { background: #f1f5f9; color: #64748b; }
+.btn-back:hover { background: #e2e8f0; }
+.btn-submit { background: #10b981; color: white; flex: 1; padding: 1rem; border-radius: 12px; font-weight: 700; border: none; cursor: pointer; font-size: 1rem; }
+.btn-submit:hover { background: #059669; }
+
+.radio-group { display: flex; gap: 1.5rem; margin-top: 0.5rem; }
+.radio-option { display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 500; color: #475569; }
+.radio-option input { width: 18px; height: 18px; cursor: pointer; }
+
+.file-upload-zone { border: 2px dashed #e2e8f0; border-radius: 16px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.2s; background: #f8fafc; }
+.file-upload-zone:hover { border-color: #3b82f6; background: #eff6ff; }
+.upload-icon { position: relative; display: inline-block; margin-bottom: 1rem; }
+.upload-plus { position: absolute; right: -5px; bottom: -5px; background: #3b82f6; color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 14px; font-weight: bold; line-height: 20px; }
+.camera-label { display: block; font-weight: 700; color: #1e293b; font-size: 1.1rem; }
+.file-hint { display: block; color: #94a3b8; font-size: 0.8rem; margin-top: 4px; }
+.photo-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+.photo-item { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 1; border: 1px solid #e2e8f0; }
+.photo-item img { width: 100%; height: 100%; object-fit: cover; }
+.photo-remove { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,0.5); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 14px; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 600px) { .phone-input { grid-template-columns: auto 1fr; } .whatsapp-btn { grid-column: span 2; border-radius: 0 0 10px 10px; border-top: 1px solid #e2e8f0; height: 50px; } }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Navigation
+  window.goToFormStep = function(s) {
+    const currentStepEl = document.querySelector('.step-content.active');
+    const currentStepNum = parseInt(currentStepEl.dataset.step);
+    
+    if (s > currentStepNum) {
+      const inputs = currentStepEl.querySelectorAll('input[required], select[required], textarea[required]');
+      let allValid = true;
+      for (let input of inputs) {
+        if (!input.checkValidity()) {
+          input.reportValidity();
+          allValid = false;
+          break;
+        }
+      }
+      if (!allValid) return;
+    }
+
+    document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+    document.querySelector(`.step-content[data-step="${s}"]`).classList.add('active');
+    document.querySelector(`.step[data-step="${s}"]`).classList.add('active');
+    
+    document.querySelectorAll('.step').forEach(el => {
+      const stepNum = parseInt(el.dataset.step);
+      if (stepNum < s) el.classList.add('completed');
+      else el.classList.remove('completed');
+    });
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Stepper Clicks
+  document.querySelectorAll('.step').forEach(stepEl => {
+    stepEl.style.cursor = 'pointer';
+    stepEl.onclick = () => {
+      const targetStep = parseInt(stepEl.dataset.step);
+      goToFormStep(targetStep);
+    };
+  });
+
+  // Phone Selectors
+  const pickers = document.querySelectorAll('[data-flagpicker]');
+  pickers.forEach(picker => {
+    const toggle = picker.querySelector('[data-toggle]');
+    const menu = picker.querySelector('[data-menu]');
+    const dialHidden = picker.querySelector('input[data-dial]');
+    const dialText = picker.querySelector('[data-dial-text]');
+    const block = picker.closest('[data-phone-block]');
+    const localInput = block.querySelector('input[data-local]');
+    const fullHidden = block.querySelector('input[data-full]');
+    const waBtn = block.querySelector('[data-wa]');
+
+    toggle.onclick = (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('[data-menu]').forEach(m => { if(m !== menu) m.hidden = true; });
+      menu.hidden = !menu.hidden;
+    };
+
+    menu.querySelectorAll('button').forEach(btn => {
+      btn.onclick = () => {
+        const dial = btn.dataset.dial;
+        const code = btn.dataset.code;
+        dialHidden.value = dial;
+        dialText.textContent = dial;
+        updateFlagImage(picker, dial);
+        menu.hidden = true;
+        updateFullValue();
+      };
+    });
+
+    function updateFullValue() {
+      const dial = dialHidden.value.replace(/\s/g, '');
+      const local = localInput.value.replace(/\D/g, '');
+      fullHidden.value = (dial && local) ? dial + local : '';
+    }
+
+    localInput.oninput = updateFullValue;
+
+    // WhatsApp
+    waBtn.onclick = () => {
+      updateFullValue();
+      if (!fullHidden.value) {
+        localInput.reportValidity();
+        return;
+      }
+      const dial = dialHidden.value;
+      const local = localInput.value;
+      const stepNum = block.dataset.step;
+      const phone = normalizePhoneForWhatsApp(dial, local);
+      const text = encodeURIComponent(buildWhatsAppMessage(stepNum));
+      window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${text}`, '_blank');
+    };
+
+    updateFlagImage(picker, dialHidden.value);
+  });
+
+  document.onclick = () => document.querySelectorAll('[data-menu]').forEach(m => m.hidden = true);
+
+  function updateFlagImage(picker, dial) {
+    const flagImg = picker.querySelector('[data-flagimg]');
+    const btn = picker.querySelector(`button[data-dial="${dial}"]`);
+    const code = btn ? btn.dataset.code : (dial === '+212' ? 'ma' : 'fr');
+    if (flagImg) flagImg.className = `flag-icon flag-icon-${code}`;
+  }
+
+  function normalizePhoneForWhatsApp(dial, localValue) {
+    const dialDigits = String(dial || '').replace(/\D/g, '');
+    let localDigits = String(localValue || '').replace(/\D/g, '');
+    localDigits = localDigits.replace(/^0+/, '');
+    return `${dialDigits}${localDigits}`;
+  }
+
+  function buildWhatsAppMessage(step) {
+    const senderName = (document.querySelector('[name="senderName"]')?.value || '').trim();
+    const senderCity = (document.querySelector('[name="senderCity"]')?.value || '').trim();
+    const receiverName = (document.querySelector('[name="receiverName"]')?.value || '').trim();
+    const parcelsCount = (document.querySelector('[name="parcelsCount"]')?.value || '1').trim();
+    // Les clients n'ont pas encore de numéro de commande à l'affichage avant création, on peut mettre "Nouveau"
+    const reference = `Nouveau/${parcelsCount}`;
+
+    if (step === '1') {
+      return [
+        `Bonjour ${senderName || 'Client'},`,
+        'Nous vous remercions pour la confiance que vous nous accordez.',
+        `Votre colis a ete enregistre avec succes sous la reference ${reference}.`,
+        'Nous prenons en charge votre envoi avec attention et professionnalisme.',
+        'Notre equipe reste a votre disposition pour toute information complementaire.',
+        'Cordialement,',
+        'Service Logistique-Cashmoh',
+      ].join('\n');
+    }
+
+    return [
+      `Bonjour ${receiverName || 'Destinataire'},`,
+      `Nous vous informons qu'un colis vous sera livre de la part de ${senderName || 'Expediteur'}, depuis ${senderCity || 'ville non renseignee'}.`,
+      `Reference colis : ${reference}`,
+      'Merci de votre confiance.',
+      'Cordialement,',
+      'Service Logistique-Cashmoh',
+    ].join('\n');
+  }
+
+  // Photo Preview with delete functionality
+  const photoInput = document.getElementById('photoInput');
+  const photoPreview = document.getElementById('photoPreview');
+  let selectedFiles = [];
+  
+  if (photoInput) {
+    function renderPhotos() {
+      photoPreview.innerHTML = '';
+      selectedFiles.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const div = document.createElement('div');
+          div.className = 'photo-item';
+          div.style.position = 'relative';
+          div.style.display = 'inline-block';
+          
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          div.appendChild(img);
+          
+          const removeBtn = document.createElement('button');
+          removeBtn.type = 'button';
+          removeBtn.className = 'photo-remove';
+          removeBtn.innerHTML = '×';
+          removeBtn.onclick = (event) => {
+            event.preventDefault();
+            selectedFiles.splice(index, 1);
+            updateFileInput();
+            renderPhotos();
+          };
+          div.appendChild(removeBtn);
+          
+          photoPreview.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    
+    function updateFileInput() {
+      const dt = new DataTransfer();
+      selectedFiles.forEach(f => dt.items.add(f));
+      photoInput.files = dt.files;
+    }
+    
+    photoInput.onchange = () => {
+      selectedFiles = Array.from(photoInput.files);
+      renderPhotos();
+    };
+  }
+});
+</script>

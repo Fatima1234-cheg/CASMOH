@@ -1,0 +1,881 @@
+<%- include('../partials/header') %>
+<% const currentDirection = (typeof direction !== 'undefined' && direction) ? direction : 'MA-FR'; %>
+<% const normalizePhone = (raw, direction) => {
+  const rawStr = String(raw || '').trim();
+  if (!rawStr) return '';
+
+  const defaultCC = direction === 'FR-MA' ? '33' : '212';
+  const knownCCs = ['212', '33', '34', '39', '49', '44', '32', '31', '41', '1', '213', '216'];
+  let digits = rawStr.replace(/\D/g, '');
+
+  if (digits.startsWith('00')) {
+    digits = digits.slice(2);
+  }
+
+  const looksInternational = rawStr.startsWith('+') || rawStr.startsWith('00');
+  if (looksInternational) {
+    const foundCC = knownCCs.find((cc) => digits.startsWith(cc));
+    if (foundCC) {
+      const national = digits.slice(foundCC.length).replace(/^0+/, '');
+      return national ? `${foundCC}${national}` : '';
+    }
+    return digits;
+  }
+
+  const existingCC = knownCCs.find((cc) => digits.startsWith(cc));
+  if (existingCC) {
+    const national = digits.slice(existingCC.length).replace(/^0+/, '');
+    return national ? `${existingCC}${national}` : '';
+  }
+
+  digits = digits.replace(/^0+/, '');
+  return digits ? `${defaultCC}${digits}` : '';
+}; %>
+<% const buildWhatsAppMessage = (fullName) => {
+  const safeName = String(fullName || '').trim() || 'Client';
+  return `Bonjour ${safeName}, Service Cashmoh. Merci pour votre demande.`;
+}; %>
+
+<div class="admin-page">
+  <%- include('../partials/admin-navbar', { currentPage: 'demandes' }) %>
+
+  <main class="admin-main">
+    <div class="demands-page">
+      <div class="demands-header">
+        <div>
+          <h1>Demandes</h1>
+          <p>Soumissions envoyées par les clients depuis leur espace.</p>
+        </div>
+        <div class="demands-header-actions">
+          <button type="button" class="demands-delete-all" id="openDeleteAllDemands">
+            Supprimer tout
+          </button>
+          <div class="demands-count" id="demandsCount"><%= demands.length %> demande(s)</div>
+        </div>
+      </div>
+
+      <% if (!demands.length) { %>
+        <div class="demands-empty">
+          <div class="demands-empty-icon">📭</div>
+          <h2>Aucune demande pour le moment</h2>
+          <p>Les nouvelles soumissions clients apparaissent ici.</p>
+        </div>
+      <% } %>
+
+      <div class="demands-grid">
+        <% demands.forEach(demand => { %>
+          <% const fullName = `${demand.firstName || ''} ${demand.lastName || ''}`.trim(); %>
+          <% const contactPhone = demand.phone || ((demand.client && demand.client.phone) ? demand.client.phone : ''); %>
+          <% const isContacted = demand.status === 'contacted'; %>
+          <article class="demand-card" data-demand-id="<%= demand._id %>" data-status="<%= demand.status %>">
+            <div class="demand-card-head">
+              <div>
+                <div class="demand-name"><%= fullName || 'Client' %></div>
+                <div class="demand-date"><%= new Date(demand.createdAt).toLocaleString('fr-FR') %></div>
+              </div>
+              <div class="demand-head-actions">
+                <div class="demand-status <%= isContacted ? 'contacted' : 'not-contacted' %>">
+                  <span class="status-label"><%= isContacted ? 'Contacté' : 'Non contacté' %></span>
+                </div>
+                <button
+                  type="button"
+                  class="demand-delete-icon"
+                  data-demand-id="<%= demand._id %>"
+                  aria-label="Supprimer cette demande"
+                  title="Supprimer cette demande"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+
+            <div class="demand-body">
+              <div class="demand-row">
+                <span>Numéro</span>
+                <strong><%= contactPhone %></strong>
+              </div>
+              <div class="demand-row">
+                <span>Destination</span>
+                <strong><%= demand.destination %></strong>
+              </div>
+              <div class="demand-row">
+                <span>Direction</span>
+                <strong><%= demand.direction === 'FR-MA' ? 'France -> Maroc' : 'Maroc -> France' %></strong>
+              </div>
+              <div class="demand-description">
+                <span>Description du coli</span>
+                <p><%= demand.parcelDescription %></p>
+              </div>
+            </div>
+
+            <div class="demand-actions">
+              <a
+                class="demand-whatsapp"
+                href="#"
+                data-phone="<%= contactPhone || '' %>"
+                data-direction="<%= demand.direction || 'MA-FR' %>"
+                data-name="<%= fullName || 'Client' %>"
+                rel="noopener noreferrer"
+                aria-label="Contacter sur WhatsApp"
+              >
+                WhatsApp
+              </a>
+              <button
+                type="button"
+                class="demand-toggle"
+                data-next-status="<%= isContacted ? 'not_contacted' : 'contacted' %>"
+              >
+                <%= isContacted ? 'Marquer non contacté' : 'Marquer contacté' %>
+              </button>
+            </div>
+          </article>
+        <% }) %>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="demandToast" class="demand-toast hidden"></div>
+<div id="deleteAllDemandsModal" class="demand-modal hidden" aria-hidden="true">
+  <div class="demand-modal-card">
+    <h3>Suppression totale</h3>
+    <p>Saisissez le code de confirmation pour continuer.</p>
+    <div class="demand-password-field">
+      <input
+        type="password"
+        id="deleteAllDemandsCode"
+        class="demand-modal-input demand-password-input"
+        placeholder="Code de confirmation"
+        autocomplete="off"
+      >
+      <button type="button" class="demand-password-toggle" id="toggleDeleteAllDemandsCode" aria-label="Afficher ou masquer le code">
+        <span class="eye-open" aria-hidden="true">👁</span>
+        <span class="eye-closed hidden" aria-hidden="true">🙈</span>
+      </button>
+    </div>
+    <div id="deleteAllDemandsError" class="demand-modal-error hidden">Mot de passe incorrecte</div>
+    <div class="demand-modal-actions">
+      <button type="button" class="demand-modal-cancel" id="cancelDeleteAllDemands">Annuler</button>
+      <button type="button" class="demand-modal-confirm" id="confirmDeleteAllDemands">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.topbar { display: none !important; }
+
+.demands-page {
+  display: grid;
+  gap: 24px;
+}
+
+.demands-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.demands-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.demands-header h1 {
+  margin: 0 0 6px;
+  font-size: 30px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.demands-header p {
+  margin: 0;
+  color: #64748b;
+}
+
+.demands-count {
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-weight: 800;
+}
+
+.demands-delete-all {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 18px;
+  background: #dc2626;
+  color: #fff;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(220, 38, 38, 0.22);
+}
+
+.demands-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.demand-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+  display: grid;
+  gap: 18px;
+}
+
+.demand-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.demand-head-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.demand-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.demand-date {
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.demand-status {
+  align-self: flex-start;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 800;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.demand-status.not-contacted {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.demand-status.contacted {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.demand-delete-icon {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.demand-delete-icon:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.demand-body {
+  display: grid;
+  gap: 12px;
+}
+
+.demand-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.demand-row span,
+.demand-description span {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.demand-row strong {
+  color: #0f172a;
+  text-align: right;
+}
+
+.demand-description {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 14px;
+}
+
+.demand-description p {
+  margin: 10px 0 0;
+  color: #0f172a;
+  line-height: 1.5;
+}
+
+.demand-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.demand-whatsapp,
+.demand-toggle {
+  flex: 1;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-weight: 800;
+  text-align: center;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.demand-whatsapp {
+  background: #25d366;
+  color: #fff;
+}
+
+.demand-toggle {
+  background: #0b2f62;
+  color: #fff;
+}
+
+.demands-empty {
+  background: #fff;
+  border-radius: 24px;
+  padding: 48px 24px;
+  text-align: center;
+  border: 1px dashed #cbd5e1;
+}
+
+.demands-empty-icon {
+  font-size: 56px;
+  margin-bottom: 12px;
+}
+
+.demand-toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  background: #0f766e;
+  color: #fff;
+  padding: 14px 18px;
+  border-radius: 14px;
+  font-weight: 700;
+  z-index: 3000;
+}
+
+.demand-toast.hidden {
+  display: none;
+}
+
+.demand-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 3500;
+}
+
+.demand-modal.hidden {
+  display: none;
+}
+
+.demand-modal-card {
+  width: min(100%, 460px);
+  background: #fff;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.24);
+  display: grid;
+  gap: 14px;
+}
+
+.demand-modal-card h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 24px;
+}
+
+.demand-modal-card p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.demand-password-field {
+  position: relative;
+}
+
+.demand-modal-input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-size: 15px;
+  outline: none;
+}
+
+.demand-password-input {
+  padding-right: 48px;
+}
+
+.demand-modal-input:focus {
+  border-color: #0b2f62;
+  box-shadow: 0 0 0 3px rgba(11, 47, 98, 0.1);
+}
+
+.demand-password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  color: #0b2f62;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 18px;
+  opacity: 1;
+}
+
+.demand-password-toggle:hover {
+  background: rgba(11, 47, 98, 0.12);
+}
+
+.eye-open.hidden,
+.eye-closed.hidden {
+  display: none;
+}
+
+.demand-modal-error {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.demand-modal-error.hidden {
+  display: none;
+}
+
+.demand-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.demand-modal-cancel,
+.demand-modal-confirm {
+  border: none;
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.demand-modal-cancel {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.demand-modal-confirm {
+  background: #dc2626;
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .demands-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .demands-header-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .demands-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .demand-actions {
+    flex-direction: column;
+  }
+}
+</style>
+
+<script>
+const demandToast = document.getElementById('demandToast');
+const demandsCount = document.getElementById('demandsCount');
+const deleteAllDemandsModal = document.getElementById('deleteAllDemandsModal');
+const deleteAllDemandsCode = document.getElementById('deleteAllDemandsCode');
+const deleteAllDemandsError = document.getElementById('deleteAllDemandsError');
+const confirmDeleteAllDemands = document.getElementById('confirmDeleteAllDemands');
+const cancelDeleteAllDemands = document.getElementById('cancelDeleteAllDemands');
+const openDeleteAllDemands = document.getElementById('openDeleteAllDemands');
+const toggleDeleteAllDemandsCode = document.getElementById('toggleDeleteAllDemandsCode');
+
+async function readJsonResponse(response) {
+  const contentType = response.headers.get('content-type') || '';
+  if (contentType.includes('application/json')) {
+    return response.json();
+  }
+
+  const rawText = await response.text();
+  const looksLikeHtml = /^\s*</.test(rawText);
+  return {
+    success: false,
+    error: looksLikeHtml ? 'Page non trouvee ou route indisponible' : (rawText || 'Erreur serveur')
+  };
+}
+
+async function deleteDemandRequest(demandId) {
+  const primaryResponse = await fetch(`/demandes/${demandId}`, {
+    method: 'DELETE',
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+      'Accept': 'application/json'
+    }
+  });
+
+  const primaryPayload = await readJsonResponse(primaryResponse);
+  if (primaryResponse.ok && primaryPayload.success) {
+    return { response: primaryResponse, payload: primaryPayload };
+  }
+
+  if (primaryResponse.status !== 404) {
+    return { response: primaryResponse, payload: primaryPayload };
+  }
+
+  const fallbackResponse = await fetch(`/demandes/${demandId}/delete`, {
+    method: 'POST',
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+      'Accept': 'application/json'
+    }
+  });
+  const fallbackPayload = await readJsonResponse(fallbackResponse);
+  return { response: fallbackResponse, payload: fallbackPayload };
+}
+
+async function deleteAllDemandsRequest(code) {
+  const requestOptions = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify({ code })
+  };
+
+  const primaryResponse = await fetch('/demandes/reset-all', requestOptions);
+  const primaryPayload = await readJsonResponse(primaryResponse);
+  if (primaryResponse.ok && primaryPayload.success) {
+    return { response: primaryResponse, payload: primaryPayload };
+  }
+
+  if (primaryResponse.status !== 404) {
+    return { response: primaryResponse, payload: primaryPayload };
+  }
+
+  const fallbackResponse = await fetch('/demandes/delete-all', requestOptions);
+  const fallbackPayload = await readJsonResponse(fallbackResponse);
+  return { response: fallbackResponse, payload: fallbackPayload };
+}
+
+function showDemandToast(message, isError = false) {
+  if (!demandToast) return;
+  demandToast.textContent = message;
+  demandToast.style.background = isError ? '#dc2626' : '#0f766e';
+  demandToast.classList.remove('hidden');
+  window.clearTimeout(showDemandToast.timer);
+  showDemandToast.timer = window.setTimeout(() => {
+    demandToast.classList.add('hidden');
+  }, 2500);
+}
+
+function updateDemandsCount() {
+  if (!demandsCount) return;
+  const count = document.querySelectorAll('.demand-card').length;
+  demandsCount.textContent = `${count} demande(s)`;
+}
+
+/**
+ * Normalise un numéro de téléphone au format international pour WhatsApp.
+ * - Supprime espaces, parenthèses, tirets, +, et tout caractère spécial
+ * - Évite les doublons d'indicatifs (212212…, +212+212…)
+ * - Direction MA-FR → indicatif 212 (client au Maroc)
+ * - Direction FR-MA → indicatif 33  (client en France)
+ */
+function formatDemandPhoneForWhatsApp(phone, direction) {
+  const raw = String(phone || '').trim();
+  if (!raw) return '';
+
+  // Indicatif par défaut selon la direction
+  const defaultCC = (direction === 'FR-MA') ? '33' : '212';
+
+  // Liste étendue d'indicatifs connus (triés du plus long au plus court pour matcher correctement)
+  const knownCCs = ['213', '216', '212', '49', '44', '41', '39', '34', '33', '32', '31', '1'];
+
+  // 1. Supprimer TOUT sauf les chiffres
+  let digits = raw.replace(/[^0-9]/g, '');
+
+  // 2. Supprimer le préfixe d'appel international « 00 »
+  if (digits.startsWith('00')) {
+    digits = digits.slice(2);
+  }
+
+  // 3. Détecter si le numéro original ressemblait à un format international
+  const looksInternational = raw.startsWith('+') || raw.startsWith('00');
+
+  // 4. Chercher un indicatif connu au début des chiffres
+  const matchedCC = knownCCs.find(cc => digits.startsWith(cc));
+
+  if (matchedCC && (looksInternational || digits.length >= 11)) {
+    // Extraire la partie nationale, en supprimant les 0 de tête
+    let national = digits.slice(matchedCC.length).replace(/^0+/, '');
+    // Protection anti-doublon : si la partie nationale re-commence par le même indicatif, le retirer
+    while (national.startsWith(matchedCC)) {
+      national = national.slice(matchedCC.length).replace(/^0+/, '');
+    }
+    return national ? `${matchedCC}${national}` : '';
+  }
+
+  // 5. Si les chiffres commencent déjà par l'indicatif par défaut (sans +), retirer et reconstruire
+  if (digits.startsWith(defaultCC)) {
+    let national = digits.slice(defaultCC.length).replace(/^0+/, '');
+    while (national.startsWith(defaultCC)) {
+      national = national.slice(defaultCC.length).replace(/^0+/, '');
+    }
+    return national ? `${defaultCC}${national}` : '';
+  }
+
+  // 6. Numéro local : retirer le 0 de tête et préfixer avec l'indicatif par défaut
+  digits = digits.replace(/^0+/, '');
+  return digits ? `${defaultCC}${digits}` : '';
+}
+
+/**
+ * Ouvre WhatsApp avec le protocole natif (whatsapp://send) et fallback wa.me.
+ * Message prérempli selon les spécifications.
+ */
+function openWhatsAppForDemand(rawPhone, direction, fullName) {
+  const phoneDigits = formatDemandPhoneForWhatsApp(rawPhone, direction);
+  if (!phoneDigits) return false;
+
+  const message = 'Bonjour, service Casmoh vous remercie pour votre confiance et vous informe que nous avons bien reçu votre demande. Nous vous répondrons et vous fixerons un rendez-vous bientôt';
+  const encodedMessage = encodeURIComponent(message);
+
+  // Tentative d'ouverture via protocole natif WhatsApp
+  const nativeUrl = `whatsapp://send?phone=${phoneDigits}&text=${encodedMessage}`;
+  const fallbackUrl = `https://wa.me/${phoneDigits}?text=${encodedMessage}`;
+
+  // Tenter l'ouverture native, fallback après 1.5s si rien ne se passe
+  const startTime = Date.now();
+  const fallbackTimer = setTimeout(() => {
+    // Si on est toujours sur la page après 1.5s, le protocole natif n'a pas fonctionné
+    if (document.visibilityState !== 'hidden') {
+      window.open(fallbackUrl, '_blank');
+    }
+  }, 1500);
+
+  // Écouter si la page se masque (= l'app WhatsApp s'est ouverte)
+  const handleVisibility = () => {
+    clearTimeout(fallbackTimer);
+    document.removeEventListener('visibilitychange', handleVisibility);
+  };
+  document.addEventListener('visibilitychange', handleVisibility);
+
+  // Ouvrir via protocole natif
+  window.location.href = nativeUrl;
+
+  return true;
+}
+
+document.querySelectorAll('.demand-whatsapp').forEach((link) => {
+  link.addEventListener('click', (event) => {
+    event.preventDefault();
+
+    const success = openWhatsAppForDemand(
+      link.dataset.phone,
+      link.dataset.direction,
+      link.dataset.name
+    );
+
+    if (!success) {
+      showDemandToast('Numéro de téléphone invalide', true);
+    }
+  });
+});
+
+function openDeleteAllModal() {
+  if (!deleteAllDemandsModal) return;
+  deleteAllDemandsModal.classList.remove('hidden');
+  deleteAllDemandsModal.setAttribute('aria-hidden', 'false');
+  deleteAllDemandsCode.value = '';
+  deleteAllDemandsCode.type = 'password';
+  if (toggleDeleteAllDemandsCode) {
+    toggleDeleteAllDemandsCode.querySelector('.eye-open')?.classList.remove('hidden');
+    toggleDeleteAllDemandsCode.querySelector('.eye-closed')?.classList.add('hidden');
+  }
+  deleteAllDemandsError.classList.add('hidden');
+  window.setTimeout(() => deleteAllDemandsCode.focus(), 50);
+}
+
+function closeDeleteAllModal() {
+  if (!deleteAllDemandsModal) return;
+  deleteAllDemandsModal.classList.add('hidden');
+  deleteAllDemandsModal.setAttribute('aria-hidden', 'true');
+}
+
+document.querySelectorAll('.demand-delete-icon').forEach((button) => {
+  button.addEventListener('click', async () => {
+    const demandId = button.dataset.demandId;
+    const card = button.closest('.demand-card');
+    if (!demandId || !card) return;
+
+    const isConfirmed = window.confirm('Vous etes sure de supprimer cette demande ?');
+    if (!isConfirmed) return;
+
+    try {
+      const { response, payload } = await deleteDemandRequest(demandId);
+
+      if (!response.ok || !payload.success) {
+        showDemandToast(payload.error || 'Erreur lors de la suppression', true);
+        return;
+      }
+
+      card.remove();
+      updateDemandsCount();
+      showDemandToast('Demande supprimee avec succes');
+
+      if (!document.querySelector('.demand-card')) {
+        window.location.reload();
+      }
+    } catch (error) {
+      showDemandToast('Erreur reseau', true);
+    }
+  });
+});
+
+document.querySelectorAll('.demand-toggle').forEach((button) => {
+  button.addEventListener('click', async () => {
+    const card = button.closest('.demand-card');
+    const demandId = card?.dataset.demandId;
+    const nextStatus = button.dataset.nextStatus;
+    if (!demandId) return;
+
+    try {
+      const response = await fetch(`/demandes/${demandId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ status: nextStatus })
+      });
+      const payload = await response.json();
+
+      if (!response.ok || !payload.success) {
+        showDemandToast(payload.error || 'Erreur lors de la mise à jour', true);
+        return;
+      }
+
+      const isContacted = payload.demand.status === 'contacted';
+      const statusBox = card.querySelector('.demand-status');
+      const statusLabel = card.querySelector('.status-label');
+
+      card.dataset.status = payload.demand.status;
+      button.dataset.nextStatus = isContacted ? 'not_contacted' : 'contacted';
+      button.textContent = isContacted ? 'Marquer non contacté' : 'Marquer contacté';
+
+      statusBox.classList.toggle('contacted', isContacted);
+      statusBox.classList.toggle('not-contacted', !isContacted);
+      statusLabel.textContent = isContacted ? 'Contacté' : 'Non contacté';
+
+      showDemandToast('Statut mis à jour');
+    } catch (error) {
+      showDemandToast('Erreur réseau', true);
+    }
+  });
+});
+
+openDeleteAllDemands?.addEventListener('click', openDeleteAllModal);
+cancelDeleteAllDemands?.addEventListener('click', closeDeleteAllModal);
+toggleDeleteAllDemandsCode?.addEventListener('click', () => {
+  if (!deleteAllDemandsCode) return;
+  const showCode = deleteAllDemandsCode.type === 'password';
+  deleteAllDemandsCode.type = showCode ? 'text' : 'password';
+  toggleDeleteAllDemandsCode.querySelector('.eye-open')?.classList.toggle('hidden', !showCode);
+  toggleDeleteAllDemandsCode.querySelector('.eye-closed')?.classList.toggle('hidden', showCode);
+});
+deleteAllDemandsModal?.addEventListener('click', (event) => {
+  if (event.target === deleteAllDemandsModal) {
+    closeDeleteAllModal();
+  }
+});
+
+deleteAllDemandsCode?.addEventListener('input', () => {
+  deleteAllDemandsError.classList.add('hidden');
+});
+
+confirmDeleteAllDemands?.addEventListener('click', async () => {
+  const code = String(deleteAllDemandsCode?.value || '').trim();
+  deleteAllDemandsError.classList.add('hidden');
+
+  if (!code) {
+    deleteAllDemandsError.textContent = 'Veuillez saisir le code';
+    deleteAllDemandsError.classList.remove('hidden');
+    return;
+  }
+
+  try {
+    const { response, payload } = await deleteAllDemandsRequest(code);
+
+    if (!response.ok || !payload.success) {
+      deleteAllDemandsError.textContent = payload.error || 'Mot de passe incorrecte';
+      deleteAllDemandsError.classList.remove('hidden');
+      return;
+    }
+
+    showDemandToast('Toutes les demandes ont ete supprimees');
+    window.location.reload();
+  } catch (error) {
+    showDemandToast('Erreur reseau', true);
+  }
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') {
+    closeDeleteAllModal();
+  }
+});
+</script>
+
+<%- include('../partials/footer') %>

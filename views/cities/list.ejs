@@ -1,0 +1,757 @@
+
+<% const currentDirection = (typeof direction !== 'undefined' && direction) ? direction : 'MA-FR'; %>
+
+<div class="admin-page">
+  <%- include('../partials/admin-navbar', { currentPage: 'cities' }) %>
+
+  <!-- Contenu principal -->
+  <main class="admin-main">
+    <div class="cities-page">
+      <h1>Villes</h1>
+
+    
+
+      <div class="city-grid">
+
+        <!-- Carte Maroc -->
+        <div class="city-card">
+          <h2>🇲🇦 Maroc</h2>
+          <form method="POST" action="/cities" class="city-form">
+            <input type="hidden" name="country" value="Morocco"/>
+            <input type="text" name="name" placeholder="Nouvelle ville..." required/>
+            <button class="btn" type="submit">Ajouter</button>
+            <div class="form-error" aria-live="polite"></div>
+          </form>
+          <ul class="city-list">
+            <% citiesMA.forEach(c => { %>
+              <li>
+  <span><%= c.name %></span>
+  <button class="btn btn-small danger delete-city-btn" 
+          data-id="<%= c._id %>" 
+          data-name="<%= c.name %>">
+    Supprimer
+  </button>
+</li>
+            <% }) %>
+            <% if (paginationMA && paginationMA.totalPages > 1) { %>
+  <div class="pagination-container">
+    <div class="pagination-info">
+      Affichage <%= (paginationMA.page - 1) * paginationMA.limit + 1 %> - 
+      <%= Math.min(paginationMA.page * paginationMA.limit, paginationMA.totalItems) %> 
+      sur <%= paginationMA.totalItems %> villes
+    </div>
+    <div class="pagination-links">
+      <% if (paginationMA.prevPage) { %>
+        <a href="?pageMA=<%= paginationMA.prevPage %><%= paginationFR ? '&pageFR=' + paginationFR.page : '' %>" class="page-link-blue">← Précédent</a>
+      <% } else { %>
+        <span class="page-link-blue disabled">← Précédent</span>
+      <% } %>
+
+      <% for (let i = 1; i <= paginationMA.totalPages; i++) { %>
+        <% if (i === paginationMA.page) { %>
+          <span class="page-link-blue active"><%= i %></span>
+        <% } else { %>
+          <a href="?pageMA=<%= i %><%= paginationFR ? '&pageFR=' + paginationFR.page : '' %>" class="page-link-blue"><%= i %></a>
+        <% } %>
+      <% } %>
+
+      <% if (paginationMA.nextPage) { %>
+        <a href="?pageMA=<%= paginationMA.nextPage %><%= paginationFR ? '&pageFR=' + paginationFR.page : '' %>" class="page-link-blue">Suivant →</a>
+      <% } else { %>
+        <span class="page-link-blue disabled">Suivant →</span>
+      <% } %>
+    </div>
+  </div>
+<% } %>
+          </ul>
+        </div>
+
+        <!-- Carte France -->
+        <div class="city-card">
+          <h2>🇫🇷 France</h2>
+          <form method="POST" action="/cities" class="city-form">
+            <input type="hidden" name="country" value="France"/>
+            <input type="text" name="name" placeholder="Nouvelle ville..." required/>
+            <button class="btn" type="submit">Ajouter</button>
+            <div class="form-error" aria-live="polite"></div>
+          </form>
+          <ul class="city-list">
+            <% citiesFR.forEach(c => { %>
+              <li>
+                <span><%= c.name %></span>
+                <form method="POST" action="/cities/<%= c._id %>?_method=DELETE" onsubmit="return confirm('Supprimer cette ville ?')" class="inline">
+                  <button class="btn btn-small danger" type="submit">Supprimer</button>
+                </form>
+              </li>
+            <% }) %>
+          </ul>
+        </div>
+
+      </div>
+
+    </div>
+    <!-- Modal de confirmation suppression -->
+<div id="deleteCityModal" class="modal">
+  <div class="modal-content modal-small">
+    <div class="modal-header">
+      <h2>🗑️ Confirmer la suppression</h2>
+      <button class="modal-close close-delete-modal">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p>Êtes-vous sûr de vouloir supprimer la ville :</p>
+      <p id="deleteCityName" style="font-weight: 700; color: #dc2626; margin: 12px 0;"></p>
+      <p class="warning-text">Cette action est irréversible !</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary close-delete-modal">Annuler</button>
+      <button type="button" class="btn btn-danger" id="confirmDeleteCityBtn">Supprimer</button>
+    </div>
+  </div>
+</div>
+  </main>
+  <!-- Toast Notification -->
+<div id="toast" class="toast hidden">
+  <div class="toast-content">
+    <span class="toast-icon"></span>
+    <span class="toast-message" id="toastMessage"></span>
+  </div>
+</div>
+</div>
+
+<style>
+  * {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+  body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: #f3f4f6;
+}
+  
+
+  /* Hide global top bar navigation on the admin dashboard */
+  .topbar { display: none !important; }
+/* ===== STYLES DE LA SIDEBAR ===== */
+  .admin-page {
+    display: block !important;
+    padding-left: 0 !important;
+    min-height: 100vh !important;
+    background: #f0f2f5 !important;
+  }
+
+  .admin-sidebar {
+    background: linear-gradient(180deg, #0b2f62 0%, #0a263f 100%);
+    color: #fff;
+    padding: 24px 18px;
+    border-radius: 15px;
+    position: fixed !important;
+    top: 20px !important;
+    left: 20px !important;
+    bottom: 20px !important;
+    width: 300px !important;
+    height: calc(100vh - 30px) !important;
+    overflow-y: auto !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .admin-main {
+    margin-left: 340px !important;
+    padding: 28px 28px 40px 28px !important;
+    min-height: calc(100vh - 40px) !important;
+    width: auto !important;
+    background: transparent !important;
+    overflow-y: auto !important;
+  }
+
+ 
+  
+  
+/* ===== STYLES SPÉCIFIQUES À LA PAGE VILLES ===== */
+.cities-page {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #1e293b;
+}
+
+.cities-page h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #0b2f62;
+  margin: 0 0 30px 0;
+  letter-spacing: -0.5px;
+  position: relative;
+  display: inline-block;
+}
+
+.cities-page h1::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #0b2f62, #3b82f6);
+  border-radius: 2px;
+}
+
+/* Grille des cartes */
+.city-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 30px;
+  margin: 40px 0;
+}
+
+/* Cartes avec effet glassmorphism */
+.city-card {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 30px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06), 0 10px 20px rgba(0, 20, 50, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.city-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 30px 60px rgba(11, 47, 98, 0.12), 0 15px 30px rgba(0, 0, 0, 0.1);
+  border-color: rgba(59, 130, 246, 0.3);
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.city-card h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 15px;
+}
+
+/* Formulaire d'ajout */
+.city-form {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+.city-form input {
+  flex: 1;
+  min-width: 200px;
+  padding: 14px 18px;
+  border: 2px solid #e2e8f0;
+  border-radius: 16px;
+  font-size: 1rem;
+  background: #ffffff;
+  transition: all 0.2s;
+  font-family: inherit;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.city-form input:focus {
+  outline: none;
+  border-color: #0b2f62;
+  box-shadow: 0 0 0 4px rgba(11, 47, 98, 0.15);
+}
+
+.city-form .btn {
+  background: linear-gradient(135deg, #0b2f62, #1e4a7a);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 16px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 8px 20px rgba(11, 47, 98, 0.2);
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.city-form .btn:hover {
+  background: linear-gradient(135deg, #0a263f, #163a5e);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(11, 47, 98, 0.3);
+}
+
+/* Liste des villes */
+.city-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.city-list li {
+  background: #f8fafc;
+  padding: 16px 20px;
+  border-radius: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.city-list li:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+  transform: translateX(4px);
+}
+
+.city-list li span {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 1.05rem;
+}
+
+/* Bouton supprimer */
+.city-list li .btn-small.danger {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  padding: 8px 16px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.15);
+}
+
+.city-list li .btn-small.danger:hover {
+  background: #fecaca;
+  color: #991b1b;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+}
+
+/* Alertes */
+.alert {
+  background: linear-gradient(135deg, #fff5f5, #fff0f0);
+  border-left: 6px solid #ef4444;
+  border-radius: 18px;
+  padding: 20px 24px;
+  margin-bottom: 30px;
+  color: #7f1d1d;
+  font-weight: 500;
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.alert div {
+  font-size: 0.95rem;
+}
+
+/* Actions sauvegarde/restauration */
+.cities-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 2px dashed #cbd5e1;
+}
+
+.cities-actions .btn {
+  padding: 12px 28px;
+  border-radius: 40px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  background: #ffffff;
+  color: #0b2f62;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+
+.cities-actions .btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  transform: translateY(-2px);
+}
+
+.cities-actions .btn-outline {
+  background: #0b2f62;
+  color: white;
+  border: 2px solid #0b2f62;
+}
+
+.cities-actions .btn-outline:hover {
+  background: #0a263f;
+  border-color: #0a263f;
+}
+
+.inline {
+  display: inline;
+}
+
+/* Responsive */
+@media (max-width: 980px) {
+  .admin-page {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+  .admin-sidebar {
+    position: static;
+    margin-bottom: 20px;
+  }
+  .direction-toggle {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .city-grid {
+    grid-template-columns: 1fr;
+  }
+  .city-form {
+    flex-direction: column;
+  }
+  .city-form .btn {
+    width: 100%;
+  }
+  .cities-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .cities-actions .btn {
+    text-align: center;
+  }
+}
+/* ===== PAGINATION ===== */
+.pagination-container {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.pagination-info {
+  font-size: 12px;
+  color: #64748b;
+}
+.pagination-links {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.page-link-blue {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #334155;
+  text-decoration: none;
+  border: 1px solid #e2e8f0;
+  font-size: 13px;
+}
+.page-link-blue:hover {
+  background: #e2e8f0;
+}
+.page-link-blue.active {
+  background: #0b2f62;
+  color: white;
+  border-color: #0b2f62;
+}
+.page-link-blue.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+/* Toast styles */
+.toast {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  background: #10b981;
+  color: white;
+  padding: 14px 20px;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  z-index: 2000;
+  animation: slideInRight 0.3s ease-out;
+}
+.toast.error {
+  background: #ef4444;
+}
+.toast.hidden {
+  display: none;
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(100px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.toast.hide {
+  animation: slideOutRight 0.3s ease-in;
+}
+@keyframes slideOutRight {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(100px); }
+}
+/* ===== MODAL DE CONFIRMATION SIMPLE ET PRO ===== */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  align-items: center;
+  justify-content: center;
+}
+.modal.show {
+  display: flex;
+}
+.modal-content {
+  background: #ffffff;
+  border-radius: 24px;
+  width: 90%;
+  max-width: 440px;
+  box-shadow: 0 20px 35px -8px rgba(0, 0, 0, 0.2), 0 10px 15px -6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  animation: fadeSlideUp 0.25s ease-out;
+}
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.modal-header {
+  padding: 20px 24px;
+  background: #f8fafc;
+  border-bottom: 1px solid #eef2f6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0b2f62;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #94a3b8;
+  transition: color 0.2s;
+  line-height: 1;
+}
+.modal-close:hover {
+  color: #ef4444;
+}
+.modal-body {
+  padding: 24px;
+  text-align: center;
+}
+.modal-body p {
+  margin: 0 0 8px;
+  color: #334155;
+  font-size: 1rem;
+}
+.delete-city-name {
+  font-weight: 700;
+  color: #dc2626;
+  background: #fef2f2;
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin: 12px 0;
+  font-size: 1rem;
+}
+.warning-text {
+  font-size: 18px;
+  color: #dc2626;
+  margin-top: 8px;
+}
+.modal-footer {
+  padding: 16px 24px 24px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  border-top: 1px solid #eef2f6;
+  background: #ffffff;
+}
+.btn {
+  padding: 10px 20px;
+  border-radius: 40px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-secondary {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+.btn-secondary:hover {
+  background: #e2e8f0;
+  transform: translateY(-1px);
+}
+.btn-danger {
+  background: #dc2626;
+  color: white;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.2);
+}
+.btn-danger:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+</style>
+<script>
+  // Fonction showToast (identique aux autres pages)
+  function showToast(message, isError = false, duration = 3000) {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toastMessage');
+    const toastIcon = toast?.querySelector('.toast-icon');
+    if (!toast) return;
+    toastMessage.textContent = message;
+    toast.classList.remove('hidden', 'hide', 'error');
+    if (isError) {
+      toast.classList.add('error');
+      if (toastIcon) toastIcon.textContent = '✕';
+    } else {
+      if (toastIcon) toastIcon.textContent = '✓';
+    }
+    toast.classList.remove('hidden');
+    setTimeout(() => {
+      toast.classList.add('hide');
+      setTimeout(() => toast.classList.add('hidden'), 300);
+    }, duration);
+  }
+
+  // Intercepter tous les formulaires d'ajout de ville
+  document.querySelectorAll('.city-form').forEach(form => {
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const action = form.getAttribute('action') || '/cities';
+      const method = form.getAttribute('method') || 'POST';
+      const body = new URLSearchParams();
+      for (const [key, value] of formData.entries()) {
+        body.append(key, value);
+      }
+
+      try {
+        const response = await fetch(action, {
+          method: method,
+          body: body,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+          }
+        });
+        const data = await response.json().catch(() => ({}));
+
+        if (response.ok) {
+          showToast('Ville ajoutée avec succès ✓', false);
+          setTimeout(() => window.location.reload(), 1500);
+        } else {
+          let errorMsg = data.error || 'Erreur inconnue';
+          if (data.errors && Array.isArray(data.errors)) {
+            errorMsg = data.errors.map(e => e.msg).join(', ');
+          }
+          showToast(errorMsg, true);
+        }
+      } catch (err) {
+        console.error(err);
+        showToast('Erreur réseau, veuillez réessayer', true);
+      }
+    });
+  });
+  // === Gestion du modal de suppression ===
+const deleteModal = document.getElementById('deleteCityModal');
+const deleteCityNameSpan = document.getElementById('deleteCityName');
+const confirmDeleteBtn = document.getElementById('confirmDeleteCityBtn');
+const closeModalBtns = document.querySelectorAll('.close-delete-modal');
+
+let currentDeleteId = null;
+
+// Ouvrir le modal quand on clique sur un bouton "Supprimer"
+document.querySelectorAll('.delete-city-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentDeleteId = btn.getAttribute('data-id');
+    const cityName = btn.getAttribute('data-name');
+    deleteCityNameSpan.textContent = cityName;
+    deleteModal.classList.add('show');
+  });
+});
+
+// Fermer le modal (croix ou annuler)
+closeModalBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    deleteModal.classList.remove('show');
+    currentDeleteId = null;
+  });
+});
+
+// Confirmer la suppression
+confirmDeleteBtn.addEventListener('click', async () => {
+  if (!currentDeleteId) return;
+  try {
+    const response = await fetch(`/cities/${currentDeleteId}?_method=DELETE`, {
+      method: 'POST',  // car _method=DELETE via method-override
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+      }
+    });
+    const data = await response.json().catch(() => ({}));
+    if (response.ok) {
+      showToast('Ville supprimée avec succès ✓', false);
+      setTimeout(() => window.location.reload(), 1500);
+    } else {
+      showToast(data.error || 'Erreur lors de la suppression', true);
+    }
+  } catch (err) {
+    showToast('Erreur réseau', true);
+  } finally {
+    deleteModal.classList.remove('show');
+    currentDeleteId = null;
+  }
+});
+</script>

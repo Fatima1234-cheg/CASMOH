@@ -1,0 +1,29 @@
+<%- include('partials/header') %>
+<section class="dashboard">
+  <div class="hero">
+    <div class="hero-cap"></div>
+    <img class="hero-logo" src="/public/img/logo.svg" alt="CASMOH sarl"/>
+    <div class="segmented">
+      <a class="seg left" href="/orders?direction=MA-FR"><%= directionDisplay('MA-FR', { showNames: true }) %></a>
+      <a class="seg right" href="/orders?direction=FR-MA"><%= directionDisplay('FR-MA', { showNames: true }) %></a>
+    </div>
+  </div>
+  <div class="menu">
+    <a class="btn-round" href="/orders/new">Ajouter</a>
+    <a class="btn-round" href="/orders">Liste</a>
+    <a class="btn-round" href="/cities">Villes</a>
+    <a class="btn-round" href="/clients">Clients</a>
+    <form class="inline" method="POST" action="/backup/reset" onsubmit="return confirm('Tout remettre à zéro ?')">
+      <button class="btn-round danger" type="submit">Mettre à Zero</button>
+    </form>
+  </div>
+  <div class="segmented bottom-cta">
+    <a class="seg left primary" href="/backup/export">Sauvegarder</a>
+    <label class="seg right danger" for="restoreFile">Restaurer
+      <form class="inline" method="POST" action="/backup/import" enctype="multipart/form-data">
+        <input id="restoreFile" type="file" name="file" accept="application/json" onchange="this.form.submit()" hidden>
+      </form>
+    </label>
+  </div>
+  <div class="hero-bottom"></div>
+</section>

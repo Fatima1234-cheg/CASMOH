@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Feuille de route</title>
+    <style>
+      @page { size: A4; margin: 8mm; }
+      * { box-sizing: border-box; }
+      html, body { padding: 0; margin: 0; }
+      body { font-family: Arial, Helvetica, sans-serif; color: #000; font-size: 11.2px; line-height: 1.12; }
+
+      .sheet { width: 196mm; margin: 0 auto; }
+      .annexe { text-align: center; font-weight: 700; font-size: 12px; margin-top: 6mm; } 
+
+      .title { text-align: center; font-weight: 700; font-size: 12px; margin-top: 2mm; margin-bottom: 2mm; }
+      .fill { display: inline-block; border-bottom: 1px dotted #000; height: 12px; vertical-align: baseline; }
+      .fill.n { width: 70mm; }
+      .fill.d { width: 80mm; }
+
+      table { width: 100%; border-collapse: collapse; }
+
+      .info { border: 1px solid #000; }
+      .info td { border: 1px solid #000; padding: 3px 5px; vertical-align: top; }
+      .line { display: flex; align-items: baseline; gap: 4px; }
+      .label { white-space: nowrap; }
+      .dots { flex: 1; border-bottom: 1px dotted #000; min-width: 10px; height: 12px; }
+      .dots .text { display: inline-block; padding: 0 2px; }
+
+      .brand { display: grid; grid-template-columns: 50mm 1fr 55mm; align-items: center; column-gap: 6mm; margin-top: 2mm; }
+      .brand-left { display: flex; align-items: center; justify-content: flex-start; }
+      .logo { height: 16mm; width: auto; object-fit: contain; }
+      .brand-center { text-align: center; }
+      .brand-title { font-weight: 700; font-size: 12.5px; letter-spacing: .2px; }
+      .brand-sub { font-size: 11.5px; margin-top: 1mm; color: #c1121f; font-weight: 700; }
+      .brand-right { text-align: right; font-size: 11.5px; line-height: 1.25; }
+      .brand-right .line { justify-content: flex-end; gap: 6px; }
+      .fr-contact { color: #0b2f62; font-weight: 700; }
+      .ma-contact { color: #c1121f; font-weight: 700; }
+      .contact-label { font-weight: 700; }
+      .contact-indent { padding-left: 18px; }
+
+      .items { border: 1px solid #000; margin-top: -1px; table-layout: fixed; }
+      .items th, .items td { border: 1px solid #000; padding: 3px 4px; vertical-align: top; overflow-wrap: anywhere; word-break: break-word; }
+      .items th { text-align: center; font-weight: 700; font-size: 9.4px; }
+      .items td { height: 8.5mm; }
+      .center { text-align: center; }
+      .right { text-align: right; }
+
+      .statement { margin-top: 6px; font-size: 11px; }
+      .statement .fill { width: 70mm; }
+      .sign { margin-top: 4px; font-size: 11px; display: flex; align-items: baseline; gap: 8px; }
+      .sign .fill { width: 70mm; }
+      .date-sign { margin-top: 2px; font-size: 11px; display: flex; align-items: baseline; gap: 6px; }
+      .date-sign .fill { width: 16mm; }
+      .footnote { margin-top: 4px; font-weight: 700; font-size: 11px; }
+      
+      .destination-title { text-align: center; font-weight: 700; font-size: 14px; margin-top: 4mm; margin-bottom: 6mm; color: #000; text-transform: uppercase; }
+    </style>
+  </head>
+  <body>
+    <%
+      const pages =
+        Array.isArray(feuilles) && feuilles.length
+          ? feuilles
+          : [
+              {
+                feuilleRouteNumber,
+                date,
+                dateArrivee,
+                transporteur,
+                vehicle,
+                paysProvenance,
+                immatriculation,
+                paysImmatriculation,
+                registreCommerceNumber,
+                registreCommerceCentre,
+                adresseMaroc,
+                totalColis,
+                poidsTotal,
+                colis,
+              },
+            ];
+    %>
+
+    <% pages.forEach((p, pageIndex) => { %>
+      <div class="sheet"<% if (pageIndex < pages.length - 1) { %> style="page-break-after: always;"<% } %>>
+        <div class="brand">
+          <div class="brand-left">
+            <% if (typeof logoDataUri !== 'undefined' && logoDataUri) { %>
+              <img class="logo" src="<%= logoDataUri %>" alt="CASMOH" />
+            <% } %>
+          </div>
+          <div class="brand-center">
+            <div class="brand-title">TRANSPORT DE BAGAGES NON ACCOMPAGNÉS</div>
+            <div class="brand-sub">🇫🇷 France - 🇲🇦 Maroc / 🇲🇦 Maroc - 🇫🇷 France</div> <Br></Br>
+          </div> 
+          <div class="brand-right">
+            <div class="fr-contact"><span class="contact-label">France :</span> <%= (contacts && contacts.france) ? contacts.france : '+33 6 58 88 18 09' %></div>
+            <div class="ma-contact"><span class="contact-label">Maroc :</span> <%= (contacts && contacts.maroc1) ? contacts.maroc1 : '+212 6 00 43 42 01' %></div>
+            <div class="ma-contact contact-indent"><%= (contacts && contacts.maroc2) ? contacts.maroc2 : '+212 6 01 95 42 24' %></div>
+          </div>
+        </div>
+        <div class="annexe">ANNEXE 3</div> <BR></BR>
+        <div class="destination-title"><%= p.villeArrivee || 'VILLE DE DESTINATION' %></div>
+        <div class="title">
+          FEUILLE DE ROUTE (1) N° <span class="fill n"><%= p.feuilleRouteNumber %></span> DU <span class="fill d"><%= p.date %></span> <BR></BR>
+        </div>
+
+        <table class="info">
+          <tr>
+            <td style="width: 33.33%;">
+              <div class="line">
+                <span class="label">Pays de provenance :</span>
+                <span class="dots"><span class="text"><%= p.paysProvenance || '' %></span></span>
+              </div>
+            </td>
+            <td style="width: 33.33%;">
+              <div class="line">
+                <span class="label">Transporteur :</span>
+                <span class="dots"><span class="text"><%= p.transporteur || '' %></span></span>
+              </div>
+            </td>
+            <td style="width: 33.34%;">
+              <div class="line">
+                <span class="label">Date d'arrivée :</span>
+                <span class="dots"><span class="text"><%= p.dateArrivee || '' %></span></span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="line">
+                <span class="label">Véhicule :</span>
+                <span class="dots"><span class="text"><%= p.vehicle || '' %></span></span>
+              </div>
+            </td>
+            <td>
+              <div class="line">
+                <span class="label">Numéro du Registre de commerce :</span>
+                <span class="dots"><span class="text"><%= p.registreCommerceNumber || '' %></span></span>
+              </div>
+            </td>
+            <td>
+              <div class="line">
+                <span class="label">Nombre total des colis :</span>
+                <span class="dots"><span class="text"><%= p.totalColis || 0 %></span></span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="line">
+                <span class="label">Immatriculation N°</span>
+                <span class="dots"><span class="text"><%= p.immatriculation || '' %></span></span>
+              </div>
+            </td>
+            <td>
+              <div class="line">
+                <span class="label">Centre du Registre de commerce :</span>
+                <span class="dots"><span class="text"><%= p.registreCommerceCentre || '' %></span></span>
+              </div>
+            </td>
+            <td rowspan="2">
+              <div class="line">
+                <span class="label">Poids total :</span>
+                <span class="dots"><span class="text"><%= Math.round((p.poidsTotal || 0) * 100) / 100 %></span></span>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div class="line">
+                <span class="label">Pays d'immatriculation :</span>
+                <span class="dots"><span class="text"><%= p.paysImmatriculation || '' %></span></span>
+              </div>
+            </td>
+            <td>
+              <div class="line">
+                <span class="label">Adresse au Maroc :</span>
+                <span class="dots"><span class="text"><%= p.adresseMaroc || '' %></span></span>
+              </div>
+            </td>
+          </tr>
+        </table>
+
+        <table class="items">
+          <thead>
+            <tr>
+              <th style="width: 9%;">Référence</th>
+              <th style="width: 12%;">Expéditeur</th>
+              <th style="width: 11%;">Ville de provenance</th>
+              <th style="width: 12%;">Destinataire</th>
+              <th style="width: 16%;">Téléphone</th>
+              <th style="width: 11%;">Ville de destination</th>
+              <th style="width: 10%;">Nbre de colis et leur nature</th>
+              <th style="width: 20%;">Description du contenu</th>
+              <th style="width: 6%;">Poids</th>
+              <th style="width: 7%;">Valeur</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% const rows = Array.isArray(p.colis) ? p.colis : []; %>
+            <% const maxRows = 18; %>
+            <% rows.forEach((c) => { %>
+              <tr>
+                <td class="center"><%= c.reference || '' %></td>
+                <td class="center"><%= (c.expediteur && c.expediteur.nom) ? c.expediteur.nom : '' %></td>
+                <td class="center"><%= c.villeProvenance || (c.expediteur && c.expediteur.ville) || '' %></td>
+                <td class="center"><%= (c.destinataire && c.destinataire.nom) ? c.destinataire.nom : '' %></td>
+                <td class="center"><%= (c.destinataire && c.destinataire.telephone) ? c.destinataire.telephone : '--' %></td>
+                <td class="center"><%= c.villeDestination || (c.destinataire && c.destinataire.ville) || '' %></td>
+                <td class="center"><%= c.nombre %><% if (c.nature) { %> <%= c.nature %><% } %></td>
+                <td><%= c.description || '--' %></td>
+                <td class="center"><%= c.poids === '' || c.poids === undefined ? '--' : c.poids %></td>
+                <td class="center"><%= c.valeur === '' || c.valeur === undefined ? '--' : c.valeur %></td>
+              </tr>
+            <% }) %>
+            <% for (let i = rows.length; i < maxRows; i++) { %>
+              <tr>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+
+        <div class="statement">
+          Je soussigné, Mme Mr <span class="fill"><%= typeof signataire !== 'undefined' ? signataire : '' %></span>
+          certifie que les informations contenues dans la présente feuille de route sont exhaustives, exactes et authentiques.
+        </div>
+        <div class="sign">
+          <span>Signé:</span>
+          <span class="fill"><%= typeof signature !== 'undefined' ? signature : '' %></span>
+        </div>
+        <div class="date-sign">
+          <span>le</span>
+          <span class="fill"><%= typeof dateJour !== 'undefined' ? dateJour : '' %></span>
+          <span>/</span>
+          <span class="fill"><%= typeof dateMois !== 'undefined' ? dateMois : '' %></span>
+          <span>/</span>
+          <span class="fill"><%= typeof dateAnnee !== 'undefined' ? dateAnnee : '' %></span>
+        </div>
+        <div class="footnote">(1) à servir par le transporteur</div>
+      </div>
+    <% }) %>
+  </body>
+</html>
